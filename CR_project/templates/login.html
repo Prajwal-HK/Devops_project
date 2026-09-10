@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container d-flex align-items-center justify-content-center min-vh-100 py-5">
+    <div class="bg-glass-indigo glossy-shine w-100 p-4 p-md-5 animate-in" style="max-width: 480px;">
+        <div class="text-center mb-5">
+            <div class="badge bg-primary bg-opacity-20 text-primary mb-3 px-3 py-2 rounded-pill fw-bold">Academic Portal
+                Access</div>
+            <h2 class="display-6 fw-bold text-white mb-2">Welcome Back</h2>
+            <p class="text-glass-muted">Securely sign in to your CRMS account</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} glass-alert animate-fade mb-4">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="mb-4">
+                <label class="form-label text-glass-muted small fw-bold text-uppercase tracking-wider">Email
+                    Address</label>
+                <div class="position-relative">
+                    <i
+                        class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-primary opacity-50"></i>
+                    <input type="email" name="email" class="form-control glass-input ps-5"
+                        placeholder="name@college.com" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label
+                        class="form-label text-glass-muted small fw-bold text-uppercase tracking-wider">Password</label>
+                    <a href="#" class="small text-primary text-decoration-none fw-bold">Forgot?</a>
+                </div>
+                <div class="position-relative">
+                    <i
+                        class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-primary opacity-50"></i>
+                    <input type="password" name="password" class="form-control glass-input ps-5" placeholder="••••••••"
+                        required>
+                </div>
+            </div>
+
+            <div class="mb-4 d-flex align-items-center justify-content-between">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input bg-transparent border-white border-opacity-20"
+                        id="remember">
+                    <label class="form-check-label text-glass-muted small" for="remember">Remember me</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-glass-primary w-100 py-3 mb-4 shadow-lg">
+                Authorize Access <i class="bi bi-shield-lock ms-2"></i>
+            </button>
+
+            <div class="text-center border-top border-white border-opacity-10 pt-4">
+                <p class="text-glass-muted small mb-0">New to the platform? <a href="/register"
+                        class="text-primary fw-bold text-decoration-none ms-1">Create an account</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

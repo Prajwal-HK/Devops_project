@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRMS - College Resource Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body style="background-color: #020617; min-height: 100vh;">
+    <!-- Dynamic Background System -->
+    <div class="bg-mesh"></div>
+    <div class="bg-blobs-container">
+        <div class="bg-blob blob-primary" style="top: -10%; left: -10%;"></div>
+        <div class="bg-blob blob-secondary" style="top: 40%; right: -10%;"></div>
+        <div class="bg-blob blob-accent" style="bottom: -10%; left: 20%;"></div>
+    </div>
+
+    <nav
+        class="navbar navbar-expand-lg navbar-dark sticky-top bg-glass-indigo border-bottom border-white border-opacity-10 py-3">
+        <div class="container">
+            <a class="navbar-brand" href="/">CRMS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <!-- Notification Bell -->
+                    <li class="nav-item dropdown me-1">
+                        <a class="nav-link position-relative px-2" href="#" id="notifBell" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="bi bi-bell-fill fs-5"></i>
+                            <span id="notifBadge"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 0.6rem; display: none;">0</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end glass-panel border-0 p-0" style="min-width: 320px;"
+                            aria-labelledby="notifBell">
+                            <div class="p-3 card-header-glass d-flex justify-content-between">
+                                <span class="fw-bold text-white">Notifications</span>
+                                <a href="{{ url_for('notices_list') }}" class="text-primary small">View All</a>
+                            </div>
+                            <div id="notifList" class="p-2 vstack gap-2" style="max-height: 300px; overflow-y:auto;">
+                                <div class="text-glass-muted small text-center py-3">Loading...</div>
+                            </div>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('notices_list') }}"><i
+                                class="bi bi-megaphone me-1"></i>Notices</a>
+                    </li>
+                    {% if current_user.role == 'student' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/placement/jobs">Jobs</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">Register</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        {% block main %}{# Custom main block for full-width pages #}
+        <div class="container mt-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} glass-alert animate-up">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Universal Style Helper for Jinja lints (fixes IDE "Problems")
+        function applyDynamicStyles() {
+            document.querySelectorAll('[data-style]').forEach(el => {
+                el.style.cssText += el.getAttribute('data-style');
+            });
+            document.querySelectorAll('[data-style-width]').forEach(el => {
+                el.style.width = el.getAttribute('data-style-width');
+            });
+            document.querySelectorAll('[data-style-delay]').forEach(el => {
+                el.style.animationDelay = el.getAttribute('data-style-delay');
+            });
+        }
+        document.addEventListener('DOMContentLoaded', applyDynamicStyles);
+    </script>
+    {%- if current_user.is_authenticated %}
+    <script>
+        function loadNotifications() {
+            fetch('/api/notifications')
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    var badge = document.getElementById('notifBadge');
+                    var list = document.getElementById('notifList');
+                    if (!badge || !list) return;
+                    if (data.count > 0) { badge.textContent = data.count; badge.style.display = 'block'; }
+                    var cols = { General: 'warning', Exam: 'danger', Placement: 'success' };
+                    list.innerHTML = data.notices.length ? data.notices.map(function (n) {
+                        var c = cols[n.category] || 'primary';
+                        return '<a href="/notices" class="text-decoration-none">' +
+                            '<div class="glass-panel p-2 rounded-3 mb-1">' +
+                            '<div class="d-flex gap-2 align-items-start">' +
+                            '<span class="badge bg-' + c + ' bg-opacity-20 text-' + c + ' rounded-pill mt-1 flex-shrink-0">' + n.category + '</span>' +
+                            '<div><div class="text-white small fw-bold">' + n.title + '</div>' +
+                            '<div class="text-glass-muted" style="font-size:.7rem">' + n.date + '</div>' +
+                            '</div></div></div></a>';
+                    }).join('') : '<div class="text-glass-muted small text-center py-3">No recent notices</div>';
+                }).catch(function () { });
+        }
+        var bellEl = document.getElementById('notifBell');
+        if (bellEl) bellEl.addEventListener('show.bs.dropdown', loadNotifications);
+    </script>
+    {%- endif %}
+</body>
+
+</html>

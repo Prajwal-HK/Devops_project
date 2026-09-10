@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container d-flex align-items-center justify-content-center min-vh-100 py-5">
+    <div class="bg-glass-indigo glossy-shine w-100 p-4 p-md-5 animate-in" style="max-width: 520px;">
+        <div class="text-center mb-5">
+            <div class="badge bg-success bg-opacity-20 text-success mb-3 px-3 py-2 rounded-pill fw-bold">Enterprise
+                Enrollment</div>
+            <h2 class="display-6 fw-bold text-white mb-2">Create Account</h2>
+            <p class="text-glass-muted">Join our intelligent academic ecosystem</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} glass-alert animate-fade mb-4">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-12 mb-3">
+                    <label class="form-label text-glass-muted small fw-bold text-uppercase tracking-wider">Full
+                        Name</label>
+                    <div class="position-relative">
+                        <i
+                            class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-primary opacity-50"></i>
+                        <input type="text" name="username" class="form-control glass-input ps-5" placeholder="John Doe"
+                            required>
+                    </div>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label class="form-label text-glass-muted small fw-bold text-uppercase tracking-wider">Email
+                        Address</label>
+                    <div class="position-relative">
+                        <i
+                            class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-primary opacity-50"></i>
+                        <input type="email" name="email" class="form-control glass-input ps-5"
+                            placeholder="name@college.com" required>
+                    </div>
+                </div>
+
+                <div class="col-12 mb-4">
+                    <label class="form-label text-glass-muted small fw-bold text-uppercase tracking-wider">Security
+                        Password</label>
+                    <div class="position-relative">
+                        <i
+                            class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-primary opacity-50"></i>
+                        <input type="password" name="password" class="form-control glass-input ps-5"
+                            placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="col-12 mb-4">
+                    <label class="form-label text-glass-muted small fw-bold text-uppercase tracking-wider">Select
+                        Role</label>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <input type="radio" class="btn-check" name="role" id="role-student" value="student" checked
+                                required>
+                            <label class="btn btn-glass w-100 py-3 d-flex flex-column align-items-center"
+                                for="role-student">
+                                <i class="bi bi-mortarboard fs-4 mb-1"></i>
+                                <span class="small fw-bold">Student</span>
+                            </label>
+                        </div>
+                        <div class="col-6">
+                            <input type="radio" class="btn-check" name="role" id="role-admin" value="admin" required>
+                            <label class="btn btn-glass w-100 py-3 d-flex flex-column align-items-center"
+                                for="role-admin">
+                                <i class="bi bi-person-gear fs-4 mb-1"></i>
+                                <span class="small fw-bold">Admin</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 mb-4">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input bg-transparent border-white border-opacity-20"
+                            id="terms" required>
+                        <label class="form-check-label text-glass-muted small" for="terms">I agree to the <a href="#"
+                                class="text-primary text-decoration-none">Terms & Conditions</a></label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-glass-primary w-100 py-3 mb-4 shadow-lg">
+                        Initialize Profile <i class="bi bi-person-plus ms-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center border-top border-white border-opacity-10 pt-4">
+                <p class="text-glass-muted small mb-0">Already have a profile? <a href="/login"
+                        class="text-primary fw-bold text-decoration-none ms-1">Sign In</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

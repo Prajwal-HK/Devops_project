@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container-fluid px-4 py-4">
+    <div class="row g-4">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+            <div class="sidebar-glass animate-in" style="animation-delay: 0.1s">
+                <div class="text-center mb-5">
+                    <div class="position-relative d-inline-block">
+                        <img src="{{ url_for('static', filename='images/' + current_user.profile_photo) }}"
+                            class="rounded-circle border border-4 border-white border-opacity-20 shadow-lg"
+                            style="width: 100px; height: 100px; object-fit: cover;" alt="Profile">
+                        <span
+                            class="position-absolute bottom-0 end-0 p-2 bg-success border border-dark border-opacity-50 rounded-circle"></span>
+                    </div>
+                    <h5 class="fw-bold mt-3 mb-0 text-white">{{ profile.full_name }}</h5>
+                    <p class="text-glass-muted small">Student • ID: {{ profile.roll_no }}</p>
+                </div>
+
+                <div class="nav flex-column">
+                    <a href="/dashboard" class="{{ 'active' if request.path == '/dashboard' }}"><i
+                            class="bi bi-grid-1x2"></i> Dashboard</a>
+                    <a href="/profile/attendance" class="{{ 'active' if request.path == '/profile/attendance' }}"><i
+                            class="bi bi-mortarboard"></i> Attendance Report</a>
+                    <a href="/profile/results" class="{{ 'active' if request.path == '/profile/results' }}"><i
+                            class="bi bi-trophy"></i> Examination Results</a>
+                    <a href="/profile/assignments" class="{{ 'active' if request.path == '/profile/assignments' }}"><i
+                            class="bi bi-journal-text"></i> My Assignments</a>
+                    <a href="/notices" class="{{ 'active' if request.path == '/notices' }}"><i
+                            class="bi bi-megaphone"></i> Notice Board</a>
+                    <a href="/profile/certificates" class="{{ 'active' if request.path == '/profile/certificates' }}"><i
+                            class="bi bi-award"></i> Achievements</a>
+                    <a href="/profile/update" class="{{ 'active' if request.path == '/profile/update' }}"><i
+                            class="bi bi-person-circle"></i> Update Profile</a>
+                    <a href="/profile/change-password"
+                        class="{{ 'active' if request.path == '/profile/change-password' }}"><i
+                            class="bi bi-shield-lock"></i> Security</a>
+                    <a href="/placement/jobs" class="{{ 'active' if request.path == '/placement/jobs' }}"><i
+                            class="bi bi-briefcase"></i> Job Portal</a>
+                    <a href="/profile/my-applications"
+                        class="{{ 'active' if request.path == '/profile/my-applications' }}"><i
+                            class="bi bi-send-check"></i> My Applications</a>
+                    <a href="/feedback" class="{{ 'active' if request.path == '/feedback' }}"><i
+                            class="bi bi-chat-heart"></i> Feedback</a>
+                    <a href="/grievance" class="{{ 'active' if request.path == '/grievance' }}"><i
+                            class="bi bi-exclamation-triangle"></i> Grievances</a>
+                    <div class="mt-auto pt-5">
+                        <a href="/logout" class="text-danger"><i class="bi bi-box-arrow-left"></i> Sign Out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9 col-xl-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-end mb-5 animate-in" style="animation-delay: 0.2s">
+                <div>
+                    <h1 class="fw-bold h2 mb-1 text-white">Academic Performance</h1>
+                    <p class="text-glass-muted mb-0">Overview of your current academic standing.</p>
+                </div>
+                <div class="text-end">
+                    <div class="small fw-semibold text-primary mb-1">Current Session</div>
+                    <div class="bg-glass-indigo px-3 py-2 rounded-pill shadow-sm d-inline-flex align-items-center">
+                        <i class="bi bi-calendar3 me-2 text-primary"></i>
+                        <span class="text-white small">{{ datetime.now().strftime('%d %B, %Y') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if shortage_subjects %}
+            <!-- Shortage Alert Banner -->
+            <div class="alert glass-panel border-danger bg-danger bg-opacity-10 d-flex align-items-center mb-5 animate-in alert-dismissible fade show"
+                style="animation-delay: 0.25s">
+                <i class="bi bi-exclamation-octagon-fill text-danger fs-4 me-3"></i>
+                <div class="flex-grow-1">
+                    <div class="fw-bold text-white">Attendance Warning</div>
+                    <div class="text-glass-muted small">You are currently below 75% in {{ shortage_subjects|length }}
+                        module(s). <a href="/profile/attendance" class="text-danger fw-bold text-decoration-none">View
+                            Details</a></div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            <!-- Stats Grid -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-4 animate-in" style="animation-delay: 0.3s">
+                    <div class="stat-glass glossy-shine border border-primary border-opacity-20"
+                        style="background: rgba(99,102,241,0.15)">
+                        <i class="bi bi-calendar-check text-primary"></i>
+                        <div>
+                            <div class="text-glass-muted small">Attendance</div>
+                            <div class="h3 fw-bold mb-0 text-white">{{ "%.1f"|format(att_pct) if att_pct is defined else
+                                "85.4" }}%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 animate-in" style="animation-delay: 0.4s">
+                    <div class="stat-glass glossy-shine border border-success border-opacity-20"
+                        style="background: rgba(16,185,129,0.15)">
+                        <i class="bi bi-graph-up-arrow text-success"></i>
+                        <div>
+                            <div class="text-glass-muted small">Current CGPA</div>
+                            <div class="h3 fw-bold mb-0 text-white">{{ "%.2f"|format(cgpa) if cgpa is defined else
+                                "8.42" }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 animate-in" style="animation-delay: 0.5s">
+                    <div class="stat-glass glossy-shine border border-warning border-opacity-20"
+                        style="background: rgba(245,158,11,0.15)">
+                        <i class="bi bi-journal-check text-warning"></i>
+                        <div>
+                            <div class="text-glass-muted small">Modules Completed</div>
+                            <div class="h3 fw-bold mb-0 text-white">{{ marks|length if marks is defined else "0" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Analytics Column -->
+                <div class="col-xl-8 animate-in" style="animation-delay: 0.6s">
+                    <div class="glass-panel glossy-shine p-4 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                            <h5 class="fw-bold mb-0 text-white">Attendance Analytics</h5>
+                            <select class="glass-input form-select form-select-sm w-auto">
+                                <option>Current Semester</option>
+                                <option>Last Semester</option>
+                            </select>
+                        </div>
+                        <div style="height: 350px;">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column Side Widgets -->
+                <div class="col-xl-4 d-flex flex-column gap-4">
+                    <!-- Recent Marks -->
+                    <div class="glass-panel p-4 animate-in" style="animation-delay: 0.7s">
+                        <h5 class="fw-bold mb-4 text-white card-header-glass">Recent Results</h5>
+                        <div class="list-group list-group-flush bg-transparent">
+                            {% for mark in current_user.marks[:3] %}
+                            <div
+                                class="list-group-item bg-transparent px-0 border-0 mb-3 border-bottom border-white border-opacity-10 pb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="d-flex gap-3">
+                                        <div class="bg-primary bg-opacity-20 text-primary rounded p-2"
+                                            style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-file-earmark-text"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold text-white">{{ mark.subject.name }}</h6>
+                                            <small class="text-glass-muted">Sem {{ mark.subject.semester }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span
+                                            class="badge bg-glass-indigo text-{{ 'success' if mark.status == 'Pass' else 'danger' }} rounded-pill"
+                                            style="font-size: 0.7rem;">{{ mark.status }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <p class="text-glass-muted small">No results yet.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-glass w-100 mt-2">View Grade Sheet</button>
+                    </div>
+
+                    <!-- Upcoming Events -->
+                    <div class="glass-panel p-4 animate-in glossy-shine"
+                        style="animation-delay: 0.8s; background: rgba(244, 63, 94, 0.1);">
+                        <h5 class="fw-bold mb-3 text-white">Next Deadline</h5>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-danger text-white rounded p-2 text-center"
+                                style="min-width: 50px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);">
+                                <div class="small fw-bold lh-1">10</div>
+                                <div style="font-size: 0.6rem;">MAR</div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold text-white">Python Project</h6>
+                                <p class="small text-glass-muted mb-0">5 days left • Portal Submission</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Table Section -->
+                <div class="col-12 mt-4 animate-in" style="animation-delay: 0.9s">
+                    <div class="glass-panel">
+                        <div class="p-4 d-flex justify-content-between align-items-center card-header-glass">
+                            <h5 class="fw-bold mb-0 text-white">Upcoming Assignments</h5>
+                            <a href="#" class="btn btn-glass btn-sm">Archive</a>
+                        </div>
+                        <div class="table-responsive p-3">
+                            <table class="table table-glass mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-glass-muted">Subject & Module</th>
+                                        <th class="text-glass-muted">Assignment Title</th>
+                                        <th class="text-glass-muted">Deadline</th>
+                                        <th class="text-glass-muted">Urgency</th>
+                                        <th class="text-glass-muted">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold text-white">Database Management</div>
+                                            <div class="small text-glass-muted">Module 4: SQL</div>
+                                        </td>
+                                        <td class="text-white">SQL Optimization Lab</td>
+                                        <td class="text-white">Mar 15, 2026</td>
+                                        <td><span class="badge bg-warning bg-opacity-20 text-warning px-3">Medium</span>
+                                        </td>
+                                        <td><button class="btn btn-glass btn-sm px-3">Open</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold text-white">Computer Networks</div>
+                                            <div class="small text-glass-muted">Module 2: Layers</div>
+                                        </td>
+                                        <td class="text-white">Packet Analysis</td>
+                                        <td class="text-white">Mar 12, 2026</td>
+                                        <td><span class="badge bg-danger bg-opacity-20 text-danger px-3">Critical</span>
+                                        </td>
+                                        <td><button class="btn btn-glass btn-sm px-3">Open</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Achievement Section -->
+{% if verified_certs %}
+<div class="container pb-5">
+    <div class="glass-panel p-4 animate-in" style="animation-delay: 0.4s">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold text-white mb-0">
+                <i class="bi bi-award-fill text-warning me-2"></i> Verified Achievements
+            </h5>
+            <a href="/profile/certificates" class="btn btn-glass btn-sm px-4 rounded-pill">View All</a>
+        </div>
+        <div class="row g-3">
+            {% for cert in verified_certs[:6] %}
+            {% set type_color = 'warning' if cert.cert_type == 'Achievement' else 'primary' if cert.cert_type ==
+            'Course' else 'success' if cert.cert_type == 'Sports' else 'info' %}
+            {% set type_icon = 'trophy' if cert.cert_type == 'Achievement' else 'book' if cert.cert_type == 'Course'
+            else 'bicycle' if cert.cert_type == 'Sports' else 'star' %}
+            <div class="col-md-4 col-lg-2">
+                <div class="bg-glass-card p-3 text-center border-{{ type_color }} border-opacity-15 h-100">
+                    <div class="p-2 bg-{{ type_color }} bg-opacity-15 rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
+                        style="width:44px;height:44px;">
+                        <i class="bi bi-{{ type_icon }} text-{{ type_color }}"></i>
+                    </div>
+                    <div class="text-white small fw-bold lh-sm">{{ cert.title[:30] }}{% if cert.title|length > 30
+                        %}...{% endif %}</div>
+                    <div class="mt-1"><span
+                            class="badge bg-{{ type_color }} bg-opacity-20 text-{{ type_color }} rounded-pill"
+                            style="font-size:0.65rem">{{ cert.cert_type }}</span></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Career Track Section -->
+<div class="container pb-5">
+    <div class="glass-panel p-4 animate-in" style="animation-delay: 0.5s">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold text-white mb-0">
+                <i class="bi bi-briefcase-fill text-primary me-2"></i> Career Track
+            </h5>
+            <div class="d-flex gap-2">
+                {% if applications %}
+                <a href="/profile/my-applications" class="btn btn-glass btn-sm px-4 rounded-pill">Track Status</a>
+                {% endif %}
+                <a href="/placement/jobs" class="btn btn-glass-primary btn-sm px-4 rounded-pill">Explore Jobs</a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% if applications %}
+            {% for app in applications[:3] %}
+            <div class="col-md-4">
+                <div
+                    class="glass-panel p-3 border-opacity-10 {{ 'border-success' if app.status == 'Selected' else 'border-primary' }} h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="text-white fw-bold small text-truncate" style="max-width: 150px;">{{
+                            app.job.company_name }}</div>
+                        {% set status_color = 'primary' if app.status == 'Applied' else 'warning' if app.status ==
+                        'Interview Scheduled' else 'success' if app.status == 'Selected' else 'danger' %}
+                        <span class="badge bg-{{ status_color }} bg-opacity-10 text-{{ status_color }} rounded-pill"
+                            style="font-size: 0.6rem;">{{ app.status }}</span>
+                    </div>
+                    <div class="text-glass-muted small mb-0 text-truncate">{{ app.job.position }}</div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="col-12 text-center py-4">
+                <div class="text-glass-muted small mb-0">No active applications. Your career journey starts in the <a
+                        href="/placement/jobs" class="text-primary text-decoration-none fw-bold">Job Portal</a>.</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
+        gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+
+        const weeklyStats = JSON.parse('{{ weekly_stats|tojson|safe if weekly_stats else "[]" }}');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: weeklyStats.length > 0 ? weeklyStats.map(s => s.date) : ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                datasets: [{
+                    label: 'Attendance %',
+                    data: weeklyStats.length > 0 ? weeklyStats.map(s => s.pct) : [82, 85, 80, 88, 92, 85],
+                    borderColor: '#6366f1',
+                    borderWidth: 3,
+                    fill: true,
+                    backgroundColor: gradient,
+                    tension: 0.4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#6366f1',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: 'rgba(255, 255, 255, 0.5)' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: 'rgba(255, 255, 255, 0.5)' }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

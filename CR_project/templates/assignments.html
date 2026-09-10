@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Header -->
+        <div class="col-12 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="badge bg-warning bg-opacity-20 text-warning mb-2 px-3 py-1 rounded-pill fw-bold">
+                        Academic Workspace</div>
+                    <h2 class="fw-bold text-white mb-0">My Assignments</h2>
+                </div>
+                <div class="text-glass-muted small">{{ assignments|length }} Active Tasks</div>
+            </div>
+        </div>
+
+        <!-- Assignment Cards -->
+        {% for a in assignments %}
+        {% set sub = submissions.get(a.id) %}
+        {% set is_overdue = a.deadline < datetime.now() %} {% set status='Graded' if sub and sub.marks_obtained is not
+            none else 'Submitted' if sub else 'Overdue' if is_overdue else 'Pending' %} {% set status_color='success' if
+            status=='Graded' else 'primary' if status=='Submitted' else 'danger' if status=='Overdue' else 'warning' %}
+            <div class="col-12 animate-in"
+            style="--delay: {{ loop.index0 * 0.1 + 0.2 }}s; animation-delay: var(--delay)">
+            <div class="glass-panel p-4 border-{{ status_color }} border-opacity-25">
+                <div class="row align-items-center g-3">
+                    <div class="col-lg-6">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="p-2 bg-{{ status_color }} bg-opacity-15 rounded-3 text-{{ status_color }}"
+                                style="min-width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-file-earmark-text fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold text-white mb-1">{{ a.title }}</h5>
+                                <div class="text-glass-muted small mb-2">{{ a.subject.name }} • Semester {{
+                                    a.subject.semester }}</div>
+                                {% if a.description %}
+                                <p class="text-glass-muted small mb-0">{{ a.description[:120] }}{% if
+                                    a.description|length > 120 %}...{% endif %}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="text-glass-muted small fw-bold text-uppercase mb-1">Deadline</div>
+                        <div class="text-{{ 'danger' if is_overdue else 'white' }} fw-bold">{{ a.deadline.strftime('%d
+                            %b %Y, %H:%M') }}</div>
+                        {% if not is_overdue %}
+                        <div class="text-glass-muted small deadline-counter"
+                            data-deadline="{{ a.deadline.isoformat() }}">Calculating...</div>
+                        {% else %}
+                        <div class="text-danger small">Deadline Passed</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-lg-3 text-lg-end">
+                        <span
+                            class="badge bg-{{ status_color }} bg-opacity-20 text-{{ status_color }} rounded-pill px-3 py-2 mb-3 d-block">
+                            <i
+                                class="bi bi-{{ 'award' if status == 'Graded' else 'check-circle' if status == 'Submitted' else 'exclamation-circle' }}"></i>
+                            {{ status }}{% if status == 'Graded' %}: {{ sub.marks_obtained }}/100{% endif %}
+                        </span>
+                        {% if a.file_path %}
+                        <a href="{{ url_for('static', filename='images/profiles/' + a.file_path) }}"
+                            class="btn btn-glass btn-sm px-3 mb-2 me-1" target="_blank">
+                            <i class="bi bi-download me-1"></i> Material
+                        </a>
+                        {% endif %}
+                        {% if not is_overdue %}
+                        <button class="btn btn-glass-primary btn-sm px-3" data-bs-toggle="modal"
+                            data-bs-target="#submitModal{{ a.id }}">
+                            <i class="bi bi-upload me-1"></i> {{ 'Resubmit' if sub else 'Submit' }}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!-- Submission Modal -->
+    <div class="modal fade" id="submitModal{{ a.id }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-panel border-0">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold text-white">Upload Submission</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{{ url_for('submit_assignment', assignment_id=a.id) }}"
+                    enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <p class="text-glass-muted small mb-4">Submit your work for: <strong class="text-white">{{
+                                a.title }}</strong></p>
+                        <div class="drag-drop-zone">
+                            <div class="drag-drop-content">
+                                <i class="bi bi-file-earmark-pdf text-danger display-4 mb-3 d-block"></i>
+                                <h6 class="text-white fw-bold mb-1">Select PDF Submission</h6>
+                                <p class="text-glass-muted small mb-0" id="fname{{ a.id }}">Click or drag your PDF here
+                                </p>
+                            </div>
+                            <input type="file" name="file" id="pdfFile{{ a.id }}" accept=".pdf"
+                                onchange="document.getElementById('fname{{ a.id }}').textContent = this.files[0].name; document.getElementById('fname{{ a.id }}').classList.add('text-primary')">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-glass-primary px-4">Upload & Submit <i
+                                class="bi bi-cloud-upload ms-2"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5">
+        <div class="glass-panel p-5">
+            <i class="bi bi-journals display-1 text-glass-muted mb-4"></i>
+            <h3 class="text-white fw-bold">No Assignments Yet</h3>
+            <p class="text-glass-muted">Your instructors haven't published any assignments. Check back later.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.deadline-counter').forEach(function (el) {
+            var deadline = new Date(el.dataset.deadline);
+            function updateTimer() {
+                var now = new Date();
+                var diff = deadline - now;
+                if (diff <= 0) { el.textContent = 'Deadline Passed'; return; }
+                var d = Math.floor(diff / 86400000);
+                var h = Math.floor((diff % 86400000) / 3600000);
+                var m = Math.floor((diff % 3600000) / 60000);
+                el.textContent = (d > 0 ? d + 'd ' : '') + h + 'h ' + m + 'm remaining';
+            }
+            updateTimer();
+            setInterval(updateTimer, 60000);
+        });
+    });
+</script>
+{% endblock %}

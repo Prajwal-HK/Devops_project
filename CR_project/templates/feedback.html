@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5 animate-fade">
+    <div class="row g-4">
+        <!-- Submit Feedback Form -->
+        <div class="col-lg-5 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-5 h-100">
+                <div class="text-center mb-5">
+                    <div class="badge bg-primary bg-opacity-20 text-primary mb-3 px-4 py-2 rounded-pill fw-bold">Quality
+                        Intelligence</div>
+                    <h3 class="fw-bold text-white">Share Your Feedback</h3>
+                    <p class="text-glass-muted">Help us shape a better academic experience</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Your Message</label>
+                        <textarea name="content" class="form-control glass-input" rows="5"
+                            placeholder="What can we improve? What's working well?" required></textarea>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Overall Rating</label>
+                        <div class="d-flex gap-3 justify-content-center mt-2" id="starRating">
+                            {% for i in range(1, 6) %}
+                            <div class="text-center">
+                                <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" class="d-none"
+                                    required>
+                                <label for="star{{ i }}" class="fs-2 star-label"
+                                    style="cursor: pointer; transition: transform 0.2s;">⭐</label>
+                                <div class="text-glass-muted" style="font-size: 0.65rem;">{{ i }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-glass-primary w-100 py-3 shadow-lg fw-bold">
+                        <i class="bi bi-send-fill me-2"></i> Submit Feedback
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Feedback History -->
+        <div class="col-lg-7 animate-in" style="animation-delay: 0.2s">
+            <div class="glass-panel p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                    <div>
+                        <h5 class="fw-bold text-white mb-0">My Submissions</h5>
+                        <div class="text-glass-muted small">Your previous feedback entries</div>
+                    </div>
+                    <span class="badge bg-primary bg-opacity-15 text-primary rounded-pill px-3">{{ feedbacks|length }}
+                        Total</span>
+                </div>
+
+                {% if feedbacks %}
+                <div class="d-flex flex-column gap-3">
+                    {% for fb in feedbacks %}
+                    <div class="glass-panel p-4 border-white border-opacity-5 animate-slide-up"
+                        style="--delay: {{ loop.index * 0.05 }}s; animation-delay: var(--delay);">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="text-white small fw-bold">Feedback #{{ loop.index }}</div>
+                            <div>
+                                {% for i in range(fb.rating if fb.rating else 0) %}⭐{% endfor %}
+                                <span class="text-glass-muted small ms-1">{{ fb.rating }}/5</span>
+                            </div>
+                        </div>
+                        <p class="text-glass-muted small mb-0">{{ fb.content }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="text-glass-muted opacity-50 mb-3"><i class="bi bi-chat-heart fs-1"></i></div>
+                    <p class="text-glass-muted">No feedback submitted yet. Be the first to share!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .star-label:hover {
+        transform: scale(1.3);
+    }
+
+    input[type="radio"]:checked+label {
+        transform: scale(1.3);
+        filter: drop-shadow(0 0 8px gold);
+    }
+</style>
+{% endblock %}

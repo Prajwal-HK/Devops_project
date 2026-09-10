@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container-fluid px-4 py-4 animate-fade">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold text-white mb-1"><i class="bi bi-bar-chart-fill text-primary me-2"></i> Analytics &
+                Reports</h2>
+            <p class="text-glass-muted mb-0">Real-time academic performance insights across all courses</p>
+        </div>
+        <a href="{{ url_for('download_analytics_report') }}"
+            class="btn btn-glass-primary px-5 py-3 rounded-pill shadow-lg fw-bold">
+            <i class="bi bi-download me-2"></i> Download PDF Report
+        </a>
+    </div>
+
+    <!-- KPI Stats Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="bg-glass-indigo glossy-shine p-4 text-center h-100 animate-in" data-style-delay="0.1s">
+                <div class="bg-primary bg-opacity-15 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                    style="width: 56px; height: 56px; font-size: 1.4rem;">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="h2 fw-bold text-white mb-0">{{ total_students }}</div>
+                <div class="text-glass-muted small mt-1">Enrolled Students</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="bg-glass-indigo glossy-shine p-4 text-center h-100 animate-in" data-style-delay="0.2s">
+                <div class="bg-success bg-opacity-15 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                    style="width: 56px; height: 56px; font-size: 1.4rem;">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div class="h2 fw-bold text-white mb-0">{{ pass_pct }}%</div>
+                <div class="text-glass-muted small mt-1">Overall Pass Rate</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="bg-glass-indigo glossy-shine p-4 text-center h-100 animate-in" data-style-delay="0.3s">
+                <div class="bg-warning bg-opacity-15 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                    style="width: 56px; height: 56px; font-size: 1.4rem;">
+                    <i class="bi bi-calendar2-check"></i>
+                </div>
+                <div class="h2 fw-bold text-white mb-0">{{ overall_att_pct }}%</div>
+                <div class="text-glass-muted small mt-1">Attendance Rate</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="bg-glass-indigo glossy-shine p-4 text-center h-100 animate-in" data-style-delay="0.4s">
+                <div class="bg-info bg-opacity-15 text-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                    style="width: 56px; height: 56px; font-size: 1.4rem;">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div class="h2 fw-bold text-white mb-0">{{ total_courses }}</div>
+                <div class="text-glass-muted small mt-1">Active Courses</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-5">
+        <!-- Pass vs Fail Doughnut -->
+        <div class="col-xl-4 animate-in" style="animation-delay: 0.3s">
+            <div class="glass-panel glossy-shine p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                    <h5 class="fw-bold text-white mb-0">Pass / Fail Ratio</h5>
+                    <span class="badge bg-primary bg-opacity-15 text-primary rounded-pill">Overall</span>
+                </div>
+                <div class="d-flex justify-content-center" style="height: 300px;">
+                    <canvas id="passfailChart"></canvas>
+                </div>
+                <div class="row g-3 mt-4">
+                    <div class="col-6">
+                        <div class="p-3 rounded-4 bg-success bg-opacity-10 text-center">
+                            <div class="text-success fw-bold fs-5">{{ pass_count }}</div>
+                            <div class="text-glass-muted small">✅ Passed</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded-4 bg-danger bg-opacity-10 text-center">
+                            <div class="text-danger fw-bold fs-5">{{ fail_count }}</div>
+                            <div class="text-glass-muted small">❌ Failed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subject-wise Avg Marks Bar Chart -->
+        <div class="col-xl-8 animate-in" style="animation-delay: 0.4s">
+            <div class="glass-panel glossy-shine p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                    <h5 class="fw-bold text-white mb-0">Subject-wise Average Marks</h5>
+                    <span class="badge bg-primary bg-opacity-15 text-primary rounded-pill">Performance</span>
+                </div>
+                {% if subject_chart %}
+                <div style="height: 350px">
+                    <canvas id="subjectChart"></canvas>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="text-glass-muted opacity-50 mb-2"><i class="bi bi-bar-chart fs-1"></i></div>
+                    <div class="text-glass-muted">No marks data yet. Upload marks to see analytics.</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Toppers List -->
+    <div class="glass-panel p-4 mb-5 animate-in" style="animation-delay: 0.5s">
+        <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+            <h5 class="fw-bold text-white mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i> Top Performers
+                Leaderboard</h5>
+            <span class="badge bg-warning bg-opacity-15 text-warning rounded-pill">Top {{ toppers|length }}</span>
+        </div>
+
+        {% if toppers %}
+        <!-- Top 3 Podium -->
+        <div class="row g-3 mb-5 justify-content-center">
+            {% for t in toppers[:3] %}
+            {% set podium_color = 'warning' if loop.index == 1 else 'secondary' if loop.index == 2 else 'warning' %}
+            {% set medal = '🥇' if loop.index == 1 else '🥈' if loop.index == 2 else '🥉' %}
+            <div class="col-md-4 text-center">
+                <div
+                    class="glass-panel p-4 border-{{ 'warning' if loop.index == 1 else 'white' }} border-opacity-{{ '25' if loop.index == 1 else '5' }}">
+                    <div class="fs-1 mb-2">{{ medal }}</div>
+                    <div class="fw-bold text-white fs-6 mb-1">{{ t.name }}</div>
+                    <div class="text-glass-muted small mb-3">{{ t.course }}</div>
+                    <div class="d-flex justify-content-center gap-4">
+                        <div>
+                            <div class="text-{{ 'warning' if loop.index == 1 else 'primary' }} fw-bold">{{ t.avg }}
+                            </div>
+                            <div class="text-glass-muted" style="font-size: 0.6rem;">AVG MARKS</div>
+                        </div>
+                        <div>
+                            <div class="text-{{ 'warning' if loop.index == 1 else 'primary' }} fw-bold">{{ t.cgpa }}
+                            </div>
+                            <div class="text-glass-muted" style="font-size: 0.6rem;">CGPA</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Full Leaderboard Table -->
+        <div class="table-responsive">
+            <table class="table table-glass align-middle mb-0">
+                <thead class="bg-glass-indigo">
+                    <tr>
+                        <th class="ps-4 py-3 text-glass-muted small text-uppercase">Rank</th>
+                        <th class="py-3 text-glass-muted small text-uppercase">Student</th>
+                        <th class="py-3 text-glass-muted small text-uppercase">Roll No</th>
+                        <th class="py-3 text-glass-muted small text-uppercase">Course</th>
+                        <th class="py-3 text-glass-muted small text-uppercase">Avg Marks</th>
+                        <th class="pe-4 py-3 text-glass-muted small text-uppercase">CGPA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in toppers %}
+                    <tr class="animate-slide-up" data-style="--delay: {{ loop.index * 0.04 }}s"
+                        data-style-delay="var(--delay)">
+                        <td class="ps-4">
+                            <span
+                                class="badge rounded-pill px-3 py-2 bg-{{ 'warning' if loop.index == 1 else 'primary' }} bg-opacity-15 text-{{ 'warning' if loop.index == 1 else 'white' }} fw-bold">
+                                #{{ loop.index }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="text-white fw-bold">{{ t.name }}</div>
+                        </td>
+                        <td>
+                            <div class="text-glass-muted small">{{ t.roll_no }}</div>
+                        </td>
+                        <td>
+                            <div class="text-glass-muted small">{{ t.course }}</div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1"
+                                    style="height: 6px; background: rgba(255,255,255,0.05);">
+                                    <div class="progress-bar bg-primary"
+                                        data-style-width="{{ (t.avg / 100 * 100)|round }}%"></div>
+                                </div>
+                                <span class="text-white small fw-bold">{{ t.avg }}</span>
+                            </div>
+                        </td>
+                        <td class="pe-4"><span class="text-success fw-bold">{{ t.cgpa }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="text-glass-muted opacity-50 mb-2"><i class="bi bi-trophy fs-1"></i></div>
+            <div class="text-glass-muted">No marks data available yet.</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Course-wise Analysis -->
+    <div class="glass-panel p-4 animate-in mb-5" style="animation-delay: 0.6s">
+        <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+            <h5 class="fw-bold text-white mb-0"><i class="bi bi-diagram-3-fill text-info me-2"></i> Course-wise Analysis
+            </h5>
+            <span class="badge bg-info bg-opacity-15 text-info rounded-pill">{{ course_analysis|length }} Courses</span>
+        </div>
+
+        <div class="row g-4">
+            {% for ca in course_analysis %}
+            <div class="col-lg-4 col-md-6">
+                <div class="glass-panel p-4 border-white border-opacity-5 h-100">
+                    <div class="fw-bold text-white mb-1">{{ ca.name }}</div>
+                    <div class="text-glass-muted small mb-3">{{ ca.student_count }} Students Enrolled</div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-glass-muted small">Pass Rate</span>
+                            <span class="text-success small fw-bold">{{ ca.pass_pct }}%</span>
+                        </div>
+                        <div class="progress rounded-pill" style="height: 8px; background: rgba(255,255,255,0.05);">
+                            <div class="progress-bar bg-success" data-style-width="{{ ca.pass_pct }}%"
+                                style="border-radius: 10px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-glass-muted small">Avg Marks</span>
+                            <span class="text-primary small fw-bold">{{ ca.avg_marks }}/100</span>
+                        </div>
+                        <div class="progress rounded-pill" style="height: 8px; background: rgba(255,255,255,0.05);">
+                            <div class="progress-bar bg-primary" data-style-width="{{ ca.avg_marks }}%"
+                                style="border-radius: 10px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-3 pt-3 border-top border-white border-opacity-5">
+                        <div class="text-center">
+                            <div class="text-success fw-bold">{{ ca.pass_count }}</div>
+                            <div class="text-glass-muted" style="font-size: 0.65rem;">PASSED</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-danger fw-bold">{{ ca.fail_count }}</div>
+                            <div class="text-glass-muted" style="font-size: 0.65rem;">FAILED</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-primary fw-bold">{{ ca.pass_count + ca.fail_count }}</div>
+                            <div class="text-glass-muted" style="font-size: 0.65rem;">TOTAL RECORDS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-4">
+                <div class="text-glass-muted">No course data available. Add courses in the Course Management section.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Pass vs Fail Doughnut Chart
+        const pfCtx = document.getElementById('passfailChart');
+        if (pfCtx) {
+            new Chart(pfCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pass', 'Fail'],
+                    datasets: [{
+                        data: [
+                            parseInt('{{ pass_count }}'),
+                            parseInt('{{ fail_count }}')
+                        ],
+                        backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.7)'],
+                        borderColor: ['rgba(16, 185, 129, 0.2)', 'rgba(239, 68, 68, 0.2)'],
+                        borderWidth: 2,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'rgba(255,255,255,0.6)',
+                                padding: 20,
+                                font: { size: 12 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Subject-wise Bar Chart
+        const subCtx = document.getElementById('subjectChart');
+        if (subCtx) {
+            const subjectData = JSON.parse('{{ subject_chart|tojson|safe }}');
+            if (subjectData.length > 0) {
+                const gradient = subCtx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(99, 102, 241, 0.9)');
+                gradient.addColorStop(1, 'rgba(99, 102, 241, 0.2)');
+                new Chart(subCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: subjectData.map(s => s.name),
+                        datasets: [{
+                            label: 'Avg Marks',
+                            data: subjectData.map(s => s.avg),
+                            backgroundColor: gradient,
+                            borderColor: 'rgba(99, 102, 241, 0.8)',
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                grid: { color: 'rgba(255,255,255,0.05)' },
+                                ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 11 } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 11 }, maxRotation: 45 }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

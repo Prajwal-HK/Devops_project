@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Header -->
+        <div class="col-12 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="badge bg-success bg-opacity-20 text-success mb-2 px-3 py-1 rounded-pill fw-bold">
+                        Achievement Vault</div>
+                    <h2 class="fw-bold text-white mb-0">My Certificates</h2>
+                </div>
+                <button class="btn btn-glass-primary shadow-lg px-4 rounded-pill" data-bs-toggle="modal"
+                    data-bs-target="#uploadModal">
+                    <i class="bi bi-plus-circle me-2"></i> Upload Certificate
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="col-md-4 animate-in" style="animation-delay: 0.15s">
+            <div class="stat-glass glossy-shine">
+                <i class="bi bi-award text-warning"></i>
+                <div>
+                    <div class="text-glass-muted small">Total Uploaded</div>
+                    <div class="h3 fw-bold mb-0 text-white">{{ certificates|length }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 animate-in" style="animation-delay: 0.2s">
+            <div class="stat-glass glossy-shine">
+                <i class="bi bi-patch-check text-success"></i>
+                <div>
+                    <div class="text-glass-muted small">Verified</div>
+                    <div class="h3 fw-bold mb-0 text-white">{{ certificates|selectattr('is_verified')|list|length }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 animate-in" style="animation-delay: 0.25s">
+            <div class="stat-glass glossy-shine">
+                <i class="bi bi-hourglass-split text-warning"></i>
+                <div>
+                    <div class="text-glass-muted small">Pending Review</div>
+                    <div class="h3 fw-bold mb-0 text-white">{{ certificates|rejectattr('is_verified')|list|length }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificates Grid -->
+        {% for cert in certificates %}
+        {% set type_color = 'warning' if cert.cert_type == 'Achievement' else 'primary' if cert.cert_type == 'Course'
+        else 'success' if cert.cert_type == 'Sports' else 'info' %}
+        {% set type_icon = 'trophy' if cert.cert_type == 'Achievement' else 'book' if cert.cert_type == 'Course' else
+        'bicycle' if cert.cert_type == 'Sports' else 'star' %}
+        <div class="col-md-6 col-lg-4 animate-in"
+            style="--delay: {{ loop.index0 * 0.08 + 0.3 }}s; animation-delay: var(--delay)">
+            <div class="glass-panel p-4 h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="p-2 bg-{{ type_color }} bg-opacity-15 rounded-3 text-{{ type_color }}"
+                        style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;">
+                        <i class="bi bi-{{ type_icon }} fs-5"></i>
+                    </div>
+                    {% if cert.is_verified %}
+                    <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-2 py-1">
+                        <i class="bi bi-patch-check-fill me-1"></i> Verified
+                    </span>
+                    {% else %}
+                    <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill px-2 py-1">
+                        <i class="bi bi-hourglass-split me-1"></i> Pending
+                    </span>
+                    {% endif %}
+                </div>
+                <h5 class="fw-bold text-white mb-1 flex-grow-1">{{ cert.title }}</h5>
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 card-header-glass">
+                    <span class="badge bg-{{ type_color }} bg-opacity-20 text-{{ type_color }} rounded-pill">{{
+                        cert.cert_type }}</span>
+                    <span class="text-glass-muted small">{{ cert.uploaded_at.strftime('%d %b %Y') }}</span>
+                </div>
+                <a href="{{ url_for('static', filename='images/profiles/' + cert.file_path) }}" target="_blank"
+                    class="btn btn-glass btn-sm mt-3 w-100">
+                    <i class="bi bi-eye me-1"></i> View Certificate
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5 animate-in" style="animation-delay: 0.3s">
+            <div class="glass-panel p-5">
+                <i class="bi bi-award display-1 text-glass-muted mb-4 d-block"></i>
+                <h3 class="text-white fw-bold">No Certificates Yet</h3>
+                <p class="text-glass-muted mb-4">Upload your academic and professional achievements to build your
+                    portfolio.</p>
+                <button class="btn btn-glass-primary px-5 rounded-pill" data-bs-toggle="modal"
+                    data-bs-target="#uploadModal">
+                    <i class="bi bi-cloud-upload me-2"></i> Upload Now
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-panel border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-white">Upload Certificate</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Certificate
+                            Title</label>
+                        <input type="text" name="title" class="form-control glass-input"
+                            placeholder="e.g., IBM Data Science Professional Certificate" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Category</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="cert_type" id="ct-achieve"
+                                    value="Achievement" checked>
+                                <label class="btn btn-glass w-100 py-2" for="ct-achieve">
+                                    <i class="bi bi-trophy d-block mb-1"></i><span class="small">Achievement</span>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="cert_type" id="ct-course" value="Course">
+                                <label class="btn btn-glass w-100 py-2" for="ct-course">
+                                    <i class="bi bi-book d-block mb-1"></i><span class="small">Course</span>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="cert_type" id="ct-sports" value="Sports">
+                                <label class="btn btn-glass w-100 py-2" for="ct-sports">
+                                    <i class="bi bi-bicycle d-block mb-1"></i><span class="small">Sports</span>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="cert_type" id="ct-other" value="Other">
+                                <label class="btn btn-glass w-100 py-2" for="ct-other">
+                                    <i class="bi bi-star d-block mb-1"></i><span class="small">Other</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Certificate File</label>
+                        <div class="drag-drop-zone">
+                            <div class="drag-drop-content">
+                                <i class="bi bi-file-earmark-arrow-up text-primary display-6 d-block mb-2"></i>
+                                <h6 class="text-white fw-bold mb-1">Select Certificate</h6>
+                                <p class="text-glass-muted small mb-0" id="certFname">PDF, JPG or PNG (Max 5MB)</p>
+                            </div>
+                            <input type="file" name="file" id="certFile" accept=".pdf,.jpg,.jpeg,.png"
+                                onchange="document.getElementById('certFname').textContent = this.files[0].name; document.getElementById('certFname').classList.add('text-primary')">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-glass-primary px-4">Submit for Review <i
+                            class="bi bi-cloud-upload ms-2"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

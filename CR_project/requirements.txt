@@ -1,0 +1,12 @@
+flask
+flask-mongoengine
+mongoengine
+pymongo
+flask-login
+flask-bcrypt
+flask-wtf
+email-validator
+reportlab
+pandas
+matplotlib
+plotly

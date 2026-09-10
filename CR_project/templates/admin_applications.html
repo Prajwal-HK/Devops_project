@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5 animate-fade">
+    <div class="glass-panel p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ url_for('manage_jobs') }}" class="btn btn-glass btn-sm rounded-circle"
+                    style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div>
+                    <h4 class="fw-bold text-white mb-0">{{ job.company_name }}</h4>
+                    <p class="text-glass-muted small mb-0">{{ job.position }} | {{ applications|length }} Applicants</p>
+                </div>
+            </div>
+            <div
+                class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-4 py-2">
+                Recruitment Dashboard
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-glass align-middle mb-0">
+                <thead class="bg-white bg-opacity-5">
+                    <tr>
+                        <th class="ps-4 py-3 text-glass-muted small text-uppercase fw-bold">Student Name</th>
+                        <th class="py-3 text-glass-muted small text-uppercase fw-bold">Applied On</th>
+                        <th class="py-3 text-glass-muted small text-uppercase fw-bold">Application Status</th>
+                        <th class="py-3 text-glass-muted small text-uppercase fw-bold">Offer Status</th>
+                        <th class="pe-4 py-3 text-glass-muted small text-uppercase fw-bold text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr class="animate-slide-up"
+                        style="--delay: {{ loop.index * 0.05 }}s; animation-delay: var(--delay);">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                    style="width: 40px; height: 40px;">
+                                    {{ app.student.student_profile.full_name[0] if app.student.student_profile else 'S'
+                                    }}
+                                </div>
+                                <div>
+                                    <div class="text-white fw-bold">{{ app.student.student_profile.full_name if
+                                        app.student.student_profile else 'Student' }}</div>
+                                    <div class="text-glass-muted small">{{ app.student.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-white small">{{ app.applied_at.strftime('%b %d, %Y') }}</div>
+                        </td>
+                        <td>
+                            {% set status_color = 'primary' if app.status == 'Applied' else 'warning' if app.status ==
+                            'Interview Scheduled' else 'success' if app.status == 'Selected' else 'danger' %}
+                            <span
+                                class="badge bg-{{ status_color }} bg-opacity-10 text-{{ status_color }} rounded-pill px-3">
+                                {{ app.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% set offer_color = 'secondary' if app.offer_status == 'Pending' else 'info' if
+                            app.offer_status == 'Released' else 'success' if app.offer_status == 'Accepted' else
+                            'danger' %}
+                            <span
+                                class="badge bg-{{ offer_color }} bg-opacity-10 text-{{ offer_color }} rounded-pill px-3">
+                                {{ app.offer_status }}
+                            </span>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <button class="btn btn-glass btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#updateModal{{ app.id }}">
+                                Manage
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Management Modal -->
+                    <div class="modal fade" id="updateModal{{ app.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content glass-panel border-0">
+                                <div class="modal-header border-0">
+                                    <h5 class="modal-title fw-bold text-white">Manage Application</h5>
+                                    <button type="button" class="btn-close btn-close-white"
+                                        data-bs-dismiss="modal"></button>
+                                </div>
+                                <form method="POST" action="{{ url_for('update_app_status', app_id=app.id) }}">
+                                    <div class="modal-body">
+                                        <div class="mb-4">
+                                            <label
+                                                class="form-label text-glass-muted small fw-bold text-uppercase">Workflow
+                                                Status</label>
+                                            <select name="status" class="form-select glass-input">
+                                                <option value="Applied" {{ 'selected' if app.status=='Applied' }}>
+                                                    Applied</option>
+                                                <option value="Interview Scheduled" {{ 'selected' if
+                                                    app.status=='Interview Scheduled' }}>Interview Scheduled</option>
+                                                <option value="Selected" {{ 'selected' if app.status=='Selected' }}>
+                                                    Selected</option>
+                                                <option value="Rejected" {{ 'selected' if app.status=='Rejected' }}>
+                                                    Rejected</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-0">
+                                            <label
+                                                class="form-label text-glass-muted small fw-bold text-uppercase">Offer
+                                                Status</label>
+                                            <select name="offer_status" class="form-select glass-input">
+                                                <option value="Pending" {{ 'selected' if app.offer_status=='Pending' }}>
+                                                    Pending</option>
+                                                <option value="Released" {{ 'selected' if app.offer_status=='Released'
+                                                    }}>Released</option>
+                                                <option value="Accepted" {{ 'selected' if app.offer_status=='Accepted'
+                                                    }}>Accepted</option>
+                                                <option value="Declined" {{ 'selected' if app.offer_status=='Declined'
+                                                    }}>Declined</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" class="btn btn-glass"
+                                            data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-glass-primary px-4">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-glass-muted opacity-50 mb-2">
+                                <i class="bi bi-people fs-1"></i>
+                            </div>
+                            <div class="text-glass-muted">No applications received yet.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

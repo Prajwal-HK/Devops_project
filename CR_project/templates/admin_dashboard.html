@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container-fluid px-4 py-4">
+    <div class="row g-4">
+        <!-- Admin Sidebar -->
+        <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+            <div class="sidebar-glass animate-in" style="animation-delay: 0.1s">
+                <div class="px-3 mb-5">
+                    <h4 class="fw-bold mb-0 text-white">Admin Central</h4>
+                    <p class="text-glass-muted small">Academic Control Center</p>
+                </div>
+                <div class="nav flex-column">
+                    <a href="/dashboard" class="{{ 'active' if request.path == '/dashboard' }}"><i
+                            class="bi bi-speedometer2"></i> Dashboard</a>
+                    <a href="/admin/courses" class="{{ 'active' if request.path == '/admin/courses' }}"><i
+                            class="bi bi-journal-text"></i> Courses</a>
+                    <a href="/admin/subjects" class="{{ 'active' if request.path == '/admin/subjects' }}"><i
+                            class="bi bi-book"></i> Subjects</a>
+                    <a href="/marks/upload" class="{{ 'active' if request.path == '/marks/upload' }}"><i
+                            class="bi bi-pencil-square"></i> Upload Marks</a>
+                    <a href="/attendance/mark" class="{{ 'active' if request.path == '/attendance/mark' }}"><i
+                            class="bi bi-check2-circle"></i> Attendance</a>
+                    <a href="/assignments/create" class="{{ 'active' if request.path == '/assignments/create' }}"><i
+                            class="bi bi-file-earmark-plus"></i> Assignments</a>
+                    <a href="/admin/notices" class="{{ 'active' if request.path == '/admin/notices' }}"><i
+                            class="bi bi-megaphone"></i> Notices</a>
+                    <a href="/admin/certificates" class="{{ 'active' if request.path == '/admin/certificates' }}"><i
+                            class="bi bi-patch-check"></i> Certificates</a>
+                    <a href="/placement/jobs" class="{{ 'active' if request.path == '/placement/jobs' }}"><i
+                            class="bi bi-briefcase"></i> Job Portal</a>
+                    <a href="/admin/analytics" class="{{ 'active' if request.path == '/admin/analytics' }}"><i
+                            class="bi bi-bar-chart-fill"></i> Analytics</a>
+                    <a href="/admin/feedback" class="{{ 'active' if request.path == '/admin/feedback' }}"><i
+                            class="bi bi-chat-heart"></i> Feedback</a>
+                    <a href="/admin/grievances" class="{{ 'active' if request.path == '/admin/grievances' }}"><i
+                            class="bi bi-shield-exclamation"></i> Grievances</a>
+                    <div class="mt-auto pt-5">
+                        <a href="/logout" class="text-danger"><i class="bi bi-box-arrow-left"></i> Sign Out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9 col-xl-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-5 animate-in"
+                style="animation-delay: 0.2s">
+                <div>
+                    <h1 class="fw-bold h2 mb-1 text-white">System Intelligence</h1>
+                    <p class="text-glass-muted mb-0">Live overview of academic operations</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="/admin/analytics" class="btn btn-glass rounded-pill px-4">
+                        <i class="bi bi-bar-chart-fill me-2"></i>Full Analytics
+                    </a>
+                    <a href="/admin/notices" class="btn btn-glass-primary rounded-pill px-4">
+                        <i class="bi bi-plus-lg me-2"></i>Post Notice
+                    </a>
+                </div>
+            </div>
+
+            <!-- KPI Row 1 -->
+            <div class="row g-4 mb-4">
+                <div class="col-6 col-md-3 animate-in" style="animation-delay: 0.3s">
+                    <div
+                        class="bg-glass-indigo glossy-shine border border-primary border-opacity-20 h-100 p-4 rounded-4">
+                        <i class="bi bi-people-fill text-primary"></i>
+                        <div>
+                            <div class="text-glass-muted small">Total Students</div>
+                            <div class="h3 fw-bold mb-0 text-white counter" data-target="{{ student_count }}">{{
+                                student_count }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-glass-card glossy-shine border border-success border-opacity-20 h-100 p-4 rounded-4"
+                    style="background: rgba(16,185,129,0.15)">
+                    <i class="bi bi-mortarboard-fill text-success"></i>
+                    <div>
+                        <div class="text-glass-muted small">Active Courses</div>
+                        <div class="h3 fw-bold mb-0 text-white">{{ course_count }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-glass-indigo glossy-shine border border-warning border-opacity-20 h-100 p-4 rounded-4"
+                style="background: rgba(245,158,11,0.15)">
+                <i class="bi bi-calendar2-check-fill text-warning"></i>
+                <div>
+                    <div class="text-glass-muted small">Attendance Avg</div>
+                    <div class="h3 fw-bold mb-0 text-white">{{ att_pct }}%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 animate-in" style="animation-delay: 0.45s">
+            <div class="bg-glass-card glossy-shine border border-info border-opacity-20 h-100 p-4 rounded-4">
+                <i class="bi bi-graph-up-arrow text-info"></i>
+                <div>
+                    <div class="text-glass-muted small">Pass Rate</div>
+                    <div class="h3 fw-bold mb-0 text-white">{{ pass_pct }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Row 2 -->
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-md-3 animate-in" style="animation-delay: 0.5s">
+            <div class="bg-glass-card glossy-shine border border-primary border-opacity-20 h-100 p-4 rounded-4"
+                style="background: rgba(13,110,253,0.15)">
+                <i class="bi bi-briefcase-fill text-primary"></i>
+                <div>
+                    <div class="text-glass-muted small">Job Postings</div>
+                    <div class="h3 fw-bold mb-0 text-white">{{ jobs_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 animate-in" style="animation-delay: 0.55s">
+            <div class="bg-glass-indigo glossy-shine border border-success border-opacity-20 h-100 p-4 rounded-4"
+                style="background: rgba(16,185,129,0.15)">
+                <i class="bi bi-send-check-fill text-success"></i>
+                <div>
+                    <div class="text-glass-muted small">Placement %</div>
+                    <div class="h3 fw-bold mb-0 text-white">{{ placement_pct }}%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 animate-in" style="animation-delay: 0.6s">
+            <div class="bg-glass-card glossy-shine border border-danger border-opacity-20 h-100 p-4 rounded-4"
+                style="background: rgba(239,68,68,0.15)">
+                <i class="bi bi-shield-exclamation text-danger"></i>
+                <div>
+                    <div class="text-glass-muted small">Pending Grievances</div>
+                    <div class="h3 fw-bold mb-0 text-white">{{ pending_grievances }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 animate-in" style="animation-delay: 0.65s">
+            <div class="bg-glass-indigo glossy-shine border border-warning border-opacity-20 h-100 p-4 rounded-4"
+                style="background: rgba(245,158,11,0.15)">
+                <i class="bi bi-patch-check-fill text-warning"></i>
+                <div>
+                    <div class="text-glass-muted small">Pending Certs</div>
+                    <div class="h3 fw-bold mb-0 text-white">{{ pending_certs }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-8 animate-in" style="animation-delay: 0.7s">
+            <div class="glass-panel glossy-shine p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-white">Subject-wise Performance</h5>
+                        <div class="text-glass-muted small">Average marks across all subjects</div>
+                    </div>
+                    <a href="/admin/analytics" class="btn btn-glass btn-sm px-4 rounded-pill">Full Report</a>
+                </div>
+                <div style="height: 320px;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 animate-in" style="animation-delay: 0.8s">
+            <div class="glass-panel p-4 h-100">
+                <h5 class="fw-bold mb-4 text-white card-header-glass">Attendance Overview</h5>
+                <div class="d-flex justify-content-center mb-4">
+                    <div class="position-relative" style="width: 160px; height: 160px;">
+                        <canvas id="attGauge"></canvas>
+                        <div class="position-absolute top-50 start-50 translate-middle text-center">
+                            <div class="fw-bold text-white fs-4">{{ att_pct }}%</div>
+                            <div class="text-glass-muted" style="font-size: 0.65rem; text-transform: uppercase;">Avg
+                                Rate</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-column gap-2 mt-2">
+                    <a href="/admin/grievances"
+                        class="p-3 rounded-4 text-decoration-none bg-glass-indigo border border-white border-opacity-5">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-glass-muted small fw-bold"><i
+                                    class="bi bi-shield-exclamation me-2"></i>Grievances</div>
+                            <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill">{{
+                                pending_grievances }}</span>
+                        </div>
+                    </a>
+                    <a href="/admin/certificates"
+                        class="p-3 rounded-4 text-decoration-none bg-glass-card border border-white border-opacity-5">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-glass-muted small fw-bold"><i class="bi bi-patch-check me-2"></i>Cert
+                                Verifications</div>
+                            <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill">{{
+                                pending_certs }}</span>
+                        </div>
+                    </a>
+                    <a href="/placement/jobs"
+                        class="p-3 rounded-4 text-decoration-none bg-glass-indigo border border-white border-opacity-5">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-glass-muted small fw-bold"><i class="bi bi-briefcase me-2"></i>New
+                                Applications</div>
+                            <span class="badge bg-primary bg-opacity-25 text-primary rounded-pill">{{
+                                pending_apps }}</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Analytics Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-6 animate-in" style="animation-delay: 0.85s">
+            <div class="glass-panel glossy-shine p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-white">Attendance Trend</h5>
+                        <div class="text-glass-muted small">Daily attendance rate (Last 7 Days)</div>
+                    </div>
+                </div>
+                <div style="height: 300px;">
+                    <canvas id="attTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 animate-in" style="animation-delay: 0.9s">
+            <div class="glass-panel p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-white">Attendance by Subject</h5>
+                        <div class="text-glass-muted small">Average presence per module</div>
+                    </div>
+                </div>
+                <div style="height: 300px;">
+                    <canvas id="subAttChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Charts -->
+    <div class="row g-4">
+        <div class="col-xl-6 animate-in" style="animation-delay: 0.9s">
+            <div class="glass-panel p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                    <h5 class="fw-bold mb-0 text-white">Student Distribution</h5>
+                    <span class="badge bg-primary bg-opacity-15 text-primary rounded-pill">By Course</span>
+                </div>
+                <div style="height: 250px;">
+                    <canvas id="courseChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 animate-in" style="animation-delay: 1.0s">
+            <div class="glass-panel p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                    <h5 class="fw-bold mb-0 text-white">Academic Performance</h5>
+                    <span class="badge bg-success bg-opacity-15 text-success rounded-pill">Pass / Fail</span>
+                </div>
+                <div style="height: 250px;">
+                    <canvas id="passFailChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<script>
+    (function () {
+        var perfLabels = JSON.parse('{{ perf_labels | tojson | safe }}');
+        var perfData = JSON.parse('{{ perf_data | tojson | safe }}');
+        var cLabels = JSON.parse('{{ course_labels | tojson | safe }}');
+        var cStudents = JSON.parse('{{ course_students | tojson | safe }}');
+        var attPct = parseFloat("{{ att_pct }}");
+        var attRem = 100 - attPct;
+        var passPct = parseFloat("{{ pass_pct }}");
+        var passRem = 100 - passPct;
+        var attTrendLabels = JSON.parse('{{ att_trend_labels | tojson | safe }}');
+        var attTrendData = JSON.parse('{{ att_trend_data | tojson | safe }}');
+        var subAttData = JSON.parse('{{ sub_att_data | tojson | safe }}');
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Subject Performance Bar
+            var perfCtx = document.getElementById('performanceChart');
+            if (perfCtx) {
+                var g = perfCtx.getContext('2d').createLinearGradient(0, 0, 0, 280);
+                g.addColorStop(0, 'rgba(99,102,241,0.85)');
+                g.addColorStop(1, 'rgba(99,102,241,0.25)');
+                new Chart(perfCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: perfLabels.length ? perfLabels : ['No Data'],
+                        datasets: [{
+                            label: 'Avg Marks',
+                            data: perfData.length ? perfData : [0],
+                            backgroundColor: g,
+                            borderColor: 'rgba(99,102,241,0.8)',
+                            borderWidth: 1,
+                            borderRadius: 10,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(255,255,255,0.4)' } },
+                            x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)', maxRotation: 40 } }
+                        }
+                    }
+                });
+            }
+
+            // Attendance Gauge
+            var attCtx = document.getElementById('attGauge');
+            if (attCtx) {
+                new Chart(attCtx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [attPct, attRem],
+                            backgroundColor: ['rgba(16,185,129,0.85)', 'rgba(255,255,255,0.05)'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        cutout: '78%',
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                        animation: { animateRotate: true, duration: 1200 }
+                    }
+                });
+            }
+
+            // Course Distribution
+            var courseCtx = document.getElementById('courseChart');
+            if (courseCtx) {
+                var palette = ['rgba(99,102,241,0.8)', 'rgba(16,185,129,0.8)', 'rgba(245,158,11,0.8)', 'rgba(6,182,212,0.8)', 'rgba(239,68,68,0.8)', 'rgba(168,85,247,0.8)'];
+                new Chart(courseCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: cLabels.length ? cLabels : ['No Courses'],
+                        datasets: [{
+                            data: cStudents.length ? cStudents : [1],
+                            backgroundColor: palette,
+                            borderColor: 'rgba(0,0,0,0.2)',
+                            borderWidth: 2,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '55%',
+                        plugins: { legend: { position: 'right', labels: { color: 'rgba(255,255,255,0.5)', padding: 16 } } }
+                    }
+                });
+            }
+
+            // Attendance Trend Line Chart
+            var trendCtx = document.getElementById('attTrendChart');
+            if (trendCtx) {
+                var g = trendCtx.getContext('2d').createLinearGradient(0, 0, 0, 250);
+                g.addColorStop(0, 'rgba(16,185,129,0.3)');
+                g.addColorStop(1, 'transparent');
+                new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: attTrendLabels,
+                        datasets: [{
+                            label: 'Attendance %',
+                            data: attTrendData,
+                            borderColor: 'rgba(16,185,129,1)',
+                            backgroundColor: g,
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: 'rgba(16,185,129,1)',
+                            pointBorderColor: '#fff',
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.4)' } },
+                            x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)' } }
+                        }
+                    }
+                });
+            }
+
+            // Subject Attendance Bar Chart
+            var subAttCtx = document.getElementById('subAttChart');
+            if (subAttCtx) {
+                new Chart(subAttCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: perfLabels, // Same labels as performance chart
+                        datasets: [{
+                            label: 'Attendance %',
+                            data: subAttData,
+                            backgroundColor: 'rgba(245,158,11,0.7)',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.4)' } },
+                            x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)', maxRotation: 40 } }
+                        }
+                    }
+                });
+            }
+
+            // Pass/Fail Pie
+            var pfCtx = document.getElementById('passFailChart');
+            if (pfCtx) {
+                new Chart(pfCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Passed', 'Failed'],
+                        datasets: [{
+                            data: [passPct, passRem],
+                            backgroundColor: ['rgba(16,185,129,0.8)', 'rgba(239,68,68,0.7)'],
+                            borderWidth: 0,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { color: 'rgba(255,255,255,0.5)', padding: 20 } } }
+                    }
+                });
+            }
+
+            // Animated counter
+            document.querySelectorAll('.counter').forEach(function (el) {
+                var target = parseInt(el.dataset.target) || 0;
+                var current = 0;
+                var step = Math.ceil((target || 1) / 40);
+                var timer = setInterval(function () {
+                    current += step;
+                    if (current >= target) { el.textContent = target; clearInterval(timer); }
+                    else { el.textContent = current; }
+                }, 25);
+            });
+        });
+    }());
+</script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Results Header -->
+        <div class="col-12 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="badge bg-primary bg-opacity-20 text-primary mb-2 px-3 py-1 rounded-pill fw-bold">
+                        Academic Transcript</div>
+                    <h2 class="fw-bold text-white mb-0">Performance Overview</h2>
+                </div>
+                <div class="text-end">
+                    <a href="{{ url_for('generate_report', student_id=current_user.id) }}"
+                        class="btn btn-glass-primary shadow-lg px-4 py-2 rounded-pill">
+                        <i class="bi bi-file-pdf-fill me-2"></i> Download Official Statement
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="col-md-4 animate-in" style="animation-delay: 0.2s">
+            <div class="glass-panel glossy-shine p-4 text-center">
+                <div class="display-5 fw-bold text-primary mb-1">{{ "%.2f"|format(cgpa) }}</div>
+                <div class="text-glass-muted small fw-bold text-uppercase">Cumulative CGPA</div>
+                <div class="progress mt-3 bg-white bg-opacity-10" style="height: 6px;">
+                    <div class="progress-bar bg-primary" style="--w: {{ cgpa * 10 }}%; width: var(--w);"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 animate-in" style="animation-delay: 0.3s">
+            <div class="glass-panel glossy-shine p-4 text-center">
+                <div class="display-5 fw-bold text-success mb-1">{{ marks|length }}</div>
+                <div class="text-glass-muted small fw-bold text-uppercase">Modules Completed</div>
+                <div class="text-success small mt-2">
+                    <i class="bi bi-check-circle-fill me-1"></i> All requirements met
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 animate-in" style="animation-delay: 0.4s">
+            <div class="glass-panel glossy-shine p-4 text-center">
+                {% set status = 'Excellent' if cgpa >= 8 else 'Good' if cgpa >= 6 else 'Average' %}
+                <div class="display-5 fw-bold text-warning mb-1">{{ status }}</div>
+                <div class="text-glass-muted small fw-bold text-uppercase">Academic Standing</div>
+                <div class="text-warning small mt-2">Based on current trajectory</div>
+            </div>
+        </div>
+
+        <!-- Semester Breakdown -->
+        {% for sem, data in sem_results.items()|sort %}
+        <div class="col-12 animate-in" style="--delay: {{ 0.5 + loop.index0 * 0.1 }}s; animation-delay: var(--delay);">
+            <div class="glass-panel p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                    <h4 class="fw-bold text-white mb-0">Semester {{ sem }}</h4>
+                    <div class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill">SGPA: {{
+                        "%.2f"|format(data.sgpa) }}</div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-glass align-middle">
+                        <thead>
+                            <tr class="text-uppercase small fw-bold text-glass-muted">
+                                <th>Subject Module</th>
+                                <th class="text-center">Internal</th>
+                                <th class="text-center">External</th>
+                                <th class="text-center">Total</th>
+                                <th class="text-center">Grade</th>
+                                <th class="text-end">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in data.marks %}
+                            <tr>
+                                <td class="text-white fw-bold">{{ m.subject.name }}</td>
+                                <td class="text-center">{{ m.internal_marks }}</td>
+                                <td class="text-center">{{ m.semester_marks }}</td>
+                                <td class="text-center text-primary fw-bold">{{ m.total_marks }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-white bg-opacity-10 text-white rounded-circle"
+                                        style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">
+                                        {{ m.grade }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <span
+                                        class="badge bg-{{ 'success' if m.status == 'Pass' else 'danger' }} bg-opacity-20 text-{{ 'success' if m.status == 'Pass' else 'danger' }} rounded-pill px-3">
+                                        {{ m.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="glass-panel p-5">
+                <i class="bi bi-journal-x display-1 text-glass-muted mb-4"></i>
+                <h3 class="text-white fw-bold">No Records Found</h3>
+                <p class="text-glass-muted">Academic data for your profile hasn't been synchronized yet.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

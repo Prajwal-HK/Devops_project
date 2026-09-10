@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Header -->
+        <div class="col-12 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="badge bg-warning bg-opacity-20 text-warning mb-2 px-3 py-1 rounded-pill fw-bold">
+                        Broadcast Hub</div>
+                    <h2 class="fw-bold text-white mb-0">Notice Management</h2>
+                </div>
+                <div class="text-end">
+                    <div class="h3 fw-bold text-warning mb-0">{{ notices|length }}</div>
+                    <div class="text-glass-muted small">Total Broadcasts</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Form -->
+        <div class="col-lg-5 animate-in" style="animation-delay: 0.2s">
+            <div class="glass-panel glossy-shine p-4 h-100">
+                <h5 class="fw-bold text-white mb-4 card-header-glass">Broadcast New Notice</h5>
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Headline</label>
+                        <input type="text" name="title" class="form-control glass-input"
+                            placeholder="e.g., End Semester Examination Schedule" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Content</label>
+                        <textarea name="content" class="form-control glass-input" rows="5"
+                            placeholder="Enter full notice content..." required></textarea>
+                    </div>
+                    <div class="mb-5">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Category</label>
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="category" id="cat-gen" value="General"
+                                    checked>
+                                <label class="btn btn-glass w-100 py-3" for="cat-gen">
+                                    <i class="bi bi-megaphone d-block mb-1"></i>
+                                    <span class="small fw-bold">General</span>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="category" id="cat-exam" value="Exam">
+                                <label class="btn btn-glass w-100 py-3" for="cat-exam">
+                                    <i class="bi bi-journal-medical d-block mb-1"></i>
+                                    <span class="small fw-bold">Exam</span>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="category" id="cat-placement"
+                                    value="Placement">
+                                <label class="btn btn-glass w-100 py-3" for="cat-placement">
+                                    <i class="bi bi-briefcase d-block mb-1"></i>
+                                    <span class="small fw-bold">Placement</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-glass-primary w-100 py-3 shadow-lg">
+                        <i class="bi bi-broadcast me-2"></i> Broadcast Now
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notice List -->
+        <div class="col-lg-7 animate-in" style="animation-delay: 0.3s">
+            <div class="glass-panel h-100">
+                <div class="p-4 card-header-glass d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold text-white mb-0">Published Notices</h5>
+                </div>
+                <div class="p-3 vstack gap-3" style="max-height: 620px; overflow-y: auto;">
+                    {% for notice in notices %}
+                    {% set cat_color = 'warning' if notice.category == 'General' else 'danger' if notice.category ==
+                    'Exam' else 'success' %}
+                    <div class="glass-panel p-3 border-{{ cat_color }} border-opacity-20">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span
+                                    class="badge bg-{{ cat_color }} bg-opacity-20 text-{{ cat_color }} rounded-pill px-2 py-1 small me-2">
+                                    {{ notice.category }}
+                                </span>
+                                <span class="text-glass-muted small">{{ notice.created_at.strftime('%d %b %Y') }}</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-glass text-primary border-0 p-1" data-bs-toggle="modal"
+                                    data-bs-target="#editNotice{{ notice.id }}">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <form method="POST" action="{{ url_for('delete_notice', notice_id=notice.id) }}"
+                                    class="d-inline" onsubmit="return confirm('Retract this notice?')">
+                                    <button type="submit" class="btn btn-sm btn-glass text-danger border-0 p-1">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <h6 class="fw-bold text-white mb-1">{{ notice.title }}</h6>
+                        <p class="text-glass-muted small mb-0">{{ notice.content[:100] }}{% if notice.content|length >
+                            100 %}...{% endif %}</p>
+                    </div>
+
+                    {% endfor %}
+                    {% if not notices %}
+                    <div class="text-center py-5 text-glass-muted">
+                        <i class="bi bi-megaphone display-4 d-block mb-3"></i>
+                        No notices broadcast yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Definitions -->
+{% for notice in notices %}
+<!-- Edit Modal -->
+<div class="modal fade" id="editNotice{{ notice.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-panel border-0">
+            <div class="modal-header border-bottom border-white border-opacity-10 bg-transparent">
+                <h5 class="modal-title text-white fw-bold">Modify Broadcast</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('edit_notice', notice_id=notice.id) }}" method="POST">
+                <div class="modal-body p-4">
+                    <div class="mb-4 text-start">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Headline</label>
+                        <input type="text" name="title" class="form-control glass-input" value="{{ notice.title }}"
+                            required>
+                    </div>
+                    <div class="mb-4 text-start">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Content</label>
+                        <textarea name="content" class="form-control glass-input" rows="5"
+                            required>{{ notice.content }}</textarea>
+                    </div>
+                    <div class="mb-2 text-start">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Category</label>
+                        <select name="category" class="form-select glass-input">
+                            <option value="General" {{ 'selected' if notice.category=='General' }}>General</option>
+                            <option value="Exam" {{ 'selected' if notice.category=='Exam' }}>Exam</option>
+                            <option value="Placement" {{ 'selected' if notice.category=='Placement' }}>Placement
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-white border-opacity-10 bg-transparent">
+                    <button type="button" class="btn btn-glass btn-sm px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-glass-primary btn-sm px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}

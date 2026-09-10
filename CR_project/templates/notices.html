@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Header -->
+        <div class="col-12 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="badge bg-primary bg-opacity-20 text-primary mb-2 px-3 py-1 rounded-pill fw-bold">
+                        Academic Communiqués</div>
+                    <h2 class="fw-bold text-white mb-0">Notice Board</h2>
+                </div>
+                <!-- Category Filters -->
+                <div class="d-flex gap-2 flex-wrap">
+                    {% for cat in ['All', 'General', 'Exam', 'Placement'] %}
+                    {% set cat_color = 'primary' if cat == 'All' else 'warning' if cat == 'General' else 'danger' if cat
+                    == 'Exam' else 'success' %}
+                    <a href="{{ url_for('notices_list', cat=cat) }}"
+                        class="btn btn-sm {{ 'btn-glass-primary' if active_cat == cat else 'btn-glass' }} rounded-pill px-3">
+                        {{ cat }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Notice Cards -->
+        {% for notice in notices %}
+        {% set cat_color = 'warning' if notice.category == 'General' else 'danger' if notice.category == 'Exam' else
+        'success' %}
+        {% set cat_icon = 'megaphone' if notice.category == 'General' else 'journal-medical' if notice.category ==
+        'Exam' else 'briefcase' %}
+        <div class="col-md-6 col-lg-4 animate-in" data-style="--delay: {{ loop.index0 * 0.08 + 0.2 }}s"
+            data-style-delay="var(--delay)">
+            <div class="bg-glass-card p-4 h-100 d-flex flex-column border-{{ cat_color }} border-opacity-20">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="badge bg-{{ cat_color }} bg-opacity-20 text-{{ cat_color }} rounded-pill px-3 py-2">
+                        <i class="bi bi-{{ cat_icon }} me-1"></i> {{ notice.category }}
+                    </span>
+                    <span class="text-glass-muted small">{{ notice.created_at.strftime('%d %b %Y') }}</span>
+                </div>
+                <h5 class="fw-bold text-white mb-3">{{ notice.title }}</h5>
+                <p class="text-glass-muted small flex-grow-1">{{ notice.content }}</p>
+                <div class="pt-3 card-header-glass">
+                    <button class="btn btn-glass btn-sm px-3 w-100" data-bs-toggle="modal"
+                        data-bs-target="#noticeModal{{ notice.id }}">
+                        Read Full Notice <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Notice Modal -->
+        <div class="modal fade" id="noticeModal{{ notice.id }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content glass-panel border-0">
+                    <div class="modal-header border-0">
+                        <div>
+                            <span
+                                class="badge bg-{{ cat_color }} bg-opacity-20 text-{{ cat_color }} rounded-pill mb-2">{{
+                                notice.category }}</span>
+                            <h5 class="modal-title fw-bold text-white">{{ notice.title }}</h5>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-glass-muted">{{ notice.content }}</p>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <span class="text-glass-muted small me-auto">Published: {{ notice.created_at.strftime('%d %B %Y
+                            at %H:%M') }}</span>
+                        <button class="btn btn-glass" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="bg-glass-indigo p-5">
+                <i class="bi bi-megaphone display-1 text-glass-muted mb-4 d-block"></i>
+                <h3 class="text-white fw-bold">No Notices Yet</h3>
+                <p class="text-glass-muted">No announcements have been posted{% if active_cat != 'All' %} in the
+                    <strong>{{ active_cat }}</strong> category{% endif %}.
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

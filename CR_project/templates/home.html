@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block main %}
+<!-- Hero Section -->
+<div class="position-relative overflow-hidden py-5 mb-5 border-bottom border-white border-opacity-10">
+    <div class="container py-5 position-relative z-index-2">
+        <div class="row align-items-center">
+            <div class="col-lg-7 animate-in" style="animation-delay: 0.1s">
+                <span class="badge bg-primary bg-opacity-20 text-primary mb-3 px-3 py-2 rounded-pill fw-bold">Next-Gen
+                    Academic ERP</span>
+                <h1 class="display-3 fw-bold mb-4 text-white">Empowering the <br><span class="text-primary">Next
+                        Generation.</span></h1>
+                <p class="lead text-glass-muted mb-5 pe-lg-5">Unified ecosystem for managing academics, resources, and
+                    career placements with precision and elegance.</p>
+                <div class="d-flex gap-3">
+                    {% if not current_user.is_authenticated %}
+                    <a class="btn btn-glass-primary btn-lg shadow-lg px-4" href="/login">Get Started <i
+                            class="bi bi-arrow-right ms-2"></i></a>
+                    <a class="btn btn-glass btn-lg px-4" href="/register">Register Portal</a>
+                    {% else %}
+                    <a class="btn btn-glass-primary btn-lg shadow-lg px-4" href="/dashboard">View Dashboard <i
+                            class="bi bi-grid-1x2 ms-2"></i></a>
+                    {% endif %}
+                </div>
+
+                <div class="row mt-5 g-4 opacity-75">
+                    <div class="col-auto">
+                        <div class="h4 fw-bold mb-0 text-white">2.4k+</div>
+                        <div class="small text-glass-muted">Active Students</div>
+                    </div>
+                    <div class="col-auto border-start border-white border-opacity-10 ps-4">
+                        <div class="h4 fw-bold mb-0 text-white">48+</div>
+                        <div class="small text-glass-muted">Courses Offered</div>
+                    </div>
+                    <div class="col-auto border-start border-white border-opacity-10 ps-4">
+                        <div class="h4 fw-bold mb-0 text-white">150+</div>
+                        <div class="small text-glass-muted">Monthly Notices</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block animate-in" style="animation-delay: 0.3s">
+                <div class="position-relative">
+                    <div class="glass-panel glossy-shine rounded-4 shadow-xl overflow-hidden"
+                        style="transform: rotate(3deg); height: 400px; width: 100%; background: var(--primary-gradient); border: none;">
+                        <div class="h-100 d-flex align-items-center justify-content-center text-white text-center p-5">
+                            <div>
+                                <i class="bi bi-mortarboard display-1 opacity-25"></i>
+                                <h2 class="fw-bold mt-4">CRMS Pro</h2>
+                                <p class="opacity-75">Intelligence meets Academia</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-glass-indigo p-4 position-absolute"
+                        style="bottom: -30px; left: -30px; width: 220px; backdrop-filter: blur(30px);">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="bg-success bg-opacity-20 text-success rounded p-2"><i
+                                    class="bi bi-check-circle"></i></div>
+                            <div class="small fw-bold text-white">Live Status</div>
+                        </div>
+                        <div class="small text-glass-muted">System is fully operational.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5 mb-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold mb-0 text-white">Bulletin Board</h3>
+                <a href="/admin/notices" class="text-primary text-decoration-none fw-bold small">View Archive</a>
+            </div>
+
+            <div class="row g-4">
+                {% for notice in notices %}
+                <div class="col-md-6 animate-in"
+                    style="--delay: {{ loop.index * 0.1 + 0.4 }}s; animation-delay: var(--delay);">
+                    <div class="bg-glass-card glossy-shine h-100 p-4 border-top border-4 border-primary">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill px-3">{{
+                                notice.category }}</span>
+                            <small class="text-glass-muted">{{ notice.created_at.strftime('%b %d, %y') }}</small>
+                        </div>
+                        <h5 class="fw-bold mb-3 text-white">{{ notice.title }}</h5>
+                        <p class="text-glass-muted small mb-0">{{ notice.content[:150] }}{{ '...' if
+                            notice.content|length >
+                            150 }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12 text-center py-5 bg-glass-indigo border-dashed">
+                    <i class="bi bi-megaphone display-4 text-glass-muted mb-3 d-block"></i>
+                    <p class="text-glass-muted mb-0">No active notices.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-lg-4 mt-5 mt-lg-0">
+            <div class="bg-glass-card glossy-shine p-4 h-100 animate-in" style="animation-delay: 0.8s">
+                <h4 class="fw-bold mb-4 text-white">Security & Performance</h4>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span class="text-glass-muted">System Integrity</span>
+                        <span class="text-primary fw-bold">High</span>
+                    </div>
+                    <div class="progress bg-white bg-opacity-10" style="height: 6px;">
+                        <div class="progress-bar" style="width: 88%"></div>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span class="text-glass-muted">Request Speed</span>
+                        <span class="text-success fw-bold">99.9%</span>
+                    </div>
+                    <div class="progress bg-white bg-opacity-10" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: 92%"></div>
+                    </div>
+                </div>
+
+                <div class="mt-auto py-4 border-top border-white border-opacity-10">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-shield-lock-fill fs-2 text-primary opacity-50"></i>
+                        <div>
+                            <div class="fw-bold text-white">Enterprise Grade</div>
+                            <div class="small text-glass-muted">SSL & Firewall Protection</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

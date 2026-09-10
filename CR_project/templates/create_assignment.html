@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4 p-md-5">
+                <div class="mb-4 text-center">
+                    <div class="badge bg-primary bg-opacity-20 text-primary mb-3 px-3 py-2 rounded-pill fw-bold">
+                        Assignment Portal</div>
+                    <h3 class="fw-bold text-white">Issue Academic Challenge</h3>
+                    <p class="text-glass-muted">Deploy new tasks to student workspace</p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label text-glass-muted small fw-bold text-uppercase">Target
+                                Module</label>
+                            <select name="subject_id" class="form-select glass-input shadow-none" required>
+                                {% for subject in subjects %}
+                                <option value="{{ subject.id }}" class="bg-dark">{{ subject.name }} (Sem {{
+                                    subject.semester }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label text-glass-muted small fw-bold text-uppercase">Assignment
+                                Headline</label>
+                            <input type="text" name="title" class="form-control glass-input"
+                                placeholder="e.g., Advanced Neural Networks Research" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Challenge Brief</label>
+                        <textarea name="description" class="form-control glass-input" rows="5"
+                            placeholder="Detailed instructions, requirements and expectations..."></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Assignment Material
+                            (Optional)</label>
+                        <div class="drag-drop-zone mb-3">
+                            <div class="drag-drop-content">
+                                <i class="bi bi-cloud-arrow-up text-primary display-4 mb-2 d-inline-block"></i>
+                                <h6 class="text-white fw-bold mb-1">Upload Challenge Document</h6>
+                                <p class="text-glass-muted small mb-0">Drag and drop or click to browse</p>
+                                <p class="text-primary-emphasis x-small opacity-50 mt-1">PDF, DOC, DOCX or TXT (Max
+                                    10MB)</p>
+                            </div>
+                            <input type="file" name="file" id="assignmentFile" accept=".pdf,.doc,.docx,.txt" required>
+                        </div>
+                    </div>
+                    <div class="mb-5">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Submission
+                            Deadline</label>
+                        <div class="position-relative">
+                            <i
+                                class="bi bi-clock-history position-absolute top-50 start-0 translate-middle-y ms-3 text-primary opacity-50"></i>
+                            <input type="datetime-local" name="deadline" class="form-control glass-input ps-5" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-glass-primary w-100 py-3 shadow-lg">
+                        Deploy Assignment <i class="bi bi-rocket-takeoff ms-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

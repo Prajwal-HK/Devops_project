@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Header -->
+        <div class="col-12 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="badge bg-warning bg-opacity-20 text-warning mb-2 px-3 py-1 rounded-pill fw-bold">Admin
+                        Portal</div>
+                    <h2 class="fw-bold text-white mb-0">Certificate Verification</h2>
+                </div>
+                <div class="d-flex gap-3">
+                    <div class="text-center">
+                        <div class="h4 fw-bold text-warning mb-0">{{ pending|length }}</div>
+                        <div class="text-glass-muted small">Pending</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="h4 fw-bold text-success mb-0">{{ verified|length }}</div>
+                        <div class="text-glass-muted small">Verified</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Certificates -->
+        <div class="col-12">
+            <div class="glass-panel animate-in" style="animation-delay: 0.2s">
+                <div class="p-4 card-header-glass d-flex align-items-center gap-2">
+                    <i class="bi bi-hourglass-split text-warning"></i>
+                    <h5 class="fw-bold text-white mb-0">Awaiting Verification</h5>
+                    <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill ms-2">{{ pending|length
+                        }}</span>
+                </div>
+                <div class="table-responsive p-3">
+                    <table class="table table-glass align-middle mb-0">
+                        <thead>
+                            <tr class="text-uppercase small fw-bold text-glass-muted">
+                                <th>Student</th>
+                                <th>Certificate Title</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">Submitted</th>
+                                <th class="text-center">File</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cert in pending %}
+                            {% set type_color = 'warning' if cert.cert_type == 'Achievement' else 'primary' if
+                            cert.cert_type == 'Course' else 'success' if cert.cert_type == 'Sports' else 'info' %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div
+                                            class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold">
+                                            {{ cert.student.username[0]|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="text-white fw-bold small">{{
+                                                cert.student.student_profile.full_name if cert.student.student_profile
+                                                else cert.student.username }}</div>
+                                            <div class="text-glass-muted" style="font-size:0.7rem">{{
+                                                cert.student.student_profile.roll_no if cert.student.student_profile
+                                                else '' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-white fw-bold">{{ cert.title }}</td>
+                                <td class="text-center">
+                                    <span
+                                        class="badge bg-{{ type_color }} bg-opacity-20 text-{{ type_color }} rounded-pill">{{
+                                        cert.cert_type }}</span>
+                                </td>
+                                <td class="text-center text-glass-muted small">{{ cert.uploaded_at.strftime('%d %b %Y')
+                                    }}</td>
+                                <td class="text-center">
+                                    <a href="{{ url_for('static', filename='images/profiles/' + cert.file_path) }}"
+                                        target="_blank" class="btn btn-glass btn-sm px-3">
+                                        <i class="bi bi-eye me-1"></i> View
+                                    </a>
+                                </td>
+                                <td class="text-end">
+                                    <form method="POST" action="{{ url_for('verify_certificate', cert_id=cert.id) }}"
+                                        class="d-inline">
+                                        <input type="hidden" name="action" value="verify">
+                                        <button type="submit" class="btn btn-success btn-sm px-3 me-1">
+                                            <i class="bi bi-check-circle me-1"></i> Verify
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('verify_certificate', cert_id=cert.id) }}"
+                                        class="d-inline"
+                                        onsubmit="return confirm('Reject and delete this certificate?')">
+                                        <input type="hidden" name="action" value="reject">
+                                        <button type="submit" class="btn btn-glass btn-sm px-3 text-danger">
+                                            <i class="bi bi-x-circle me-1"></i> Reject
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-glass-muted">
+                                    <i class="bi bi-check-all fs-4 d-block mb-2 text-success"></i>
+                                    All certificates reviewed — inbox clear!
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verified Certificates -->
+        <div class="col-12 animate-in" style="animation-delay: 0.3s">
+            <div class="glass-panel">
+                <div class="p-4 card-header-glass d-flex align-items-center gap-2">
+                    <i class="bi bi-patch-check-fill text-success"></i>
+                    <h5 class="fw-bold text-white mb-0">Verified Achievements</h5>
+                    <span class="badge bg-success bg-opacity-20 text-success rounded-pill ms-2">{{ verified|length
+                        }}</span>
+                </div>
+                <div class="row g-3 p-3">
+                    {% for cert in verified %}
+                    {% set type_color = 'warning' if cert.cert_type == 'Achievement' else 'primary' if cert.cert_type ==
+                    'Course' else 'success' if cert.cert_type == 'Sports' else 'info' %}
+                    <div class="col-md-4">
+                        <div class="glass-panel p-3 border-success border-opacity-20">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span
+                                    class="badge bg-{{ type_color }} bg-opacity-20 text-{{ type_color }} rounded-pill">{{
+                                    cert.cert_type }}</span>
+                                <i class="bi bi-patch-check-fill text-success"></i>
+                            </div>
+                            <div class="fw-bold text-white small mb-1">{{ cert.title }}</div>
+                            <div class="text-glass-muted" style="font-size:0.7rem">{{
+                                cert.student.student_profile.full_name if cert.student.student_profile else
+                                cert.student.username }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Header -->
+        <div class="col-12 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="badge bg-primary bg-opacity-20 text-primary mb-2 px-3 py-1 rounded-pill fw-bold">Admin
+                        Portal</div>
+                    <h2 class="fw-bold text-white mb-0">Assignment Management</h2>
+                </div>
+                <a href="{{ url_for('create_assignment') }}" class="btn btn-glass-primary shadow-lg px-4 rounded-pill">
+                    <i class="bi bi-plus-circle me-2"></i> New Assignment
+                </a>
+            </div>
+        </div>
+
+        <!-- Assignment List -->
+        {% for a in assignments %}
+        {% set is_overdue = a.deadline < datetime.now() %} <div class="col-12 animate-in"
+            style="--delay: {{ loop.index0 * 0.1 + 0.2 }}s; animation-delay: var(--delay)">
+            <div class="glass-panel p-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-lg-5">
+                        <h5 class="fw-bold text-white mb-1">{{ a.title }}</h5>
+                        <div class="text-glass-muted small">{{ a.subject.name }} • Semester {{ a.subject.semester }}
+                        </div>
+                        {% if a.description %}
+                        <p class="text-glass-muted small mb-0 mt-2">{{ a.description[:100] }}{% if a.description|length
+                            > 100 %}...{% endif %}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="text-glass-muted small fw-bold text-uppercase mb-1">Deadline</div>
+                        <div class="text-{{ 'danger' if is_overdue else 'white' }} fw-bold">
+                            {{ a.deadline.strftime('%d %b %Y') }}
+                        </div>
+                        <div class="text-glass-muted small">{{ a.deadline.strftime('%H:%M') }}</div>
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <div class="text-glass-muted small text-uppercase mb-1">Submissions</div>
+                        <div class="h4 fw-bold text-primary mb-0">{{ a.submissions|length }}</div>
+                    </div>
+                    <div class="col-lg-3 text-lg-end">
+                        <div class="d-flex flex-column gap-2">
+                            <a href="{{ url_for('view_submissions', assignment_id=a.id) }}"
+                                class="btn btn-glass-primary btn-sm px-3 shadow-lg">
+                                <i class="bi bi-people-fill me-1"></i> Submissions
+                            </a>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-glass btn-sm flex-grow-1" data-bs-toggle="modal"
+                                    data-bs-target="#editAssn{{ a.id }}">
+                                    <i class="bi bi-pencil-square text-primary"></i>
+                                </button>
+                                <form action="{{ url_for('delete_assignment', assignment_id=a.id) }}" method="POST"
+                                    class="flex-grow-1" onsubmit="return confirm('Delete this assignment?')">
+                                    <button type="submit" class="btn btn-glass btn-sm w-100">
+                                        <i class="bi bi-trash3 text-danger"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% endfor %}
+            {% if not assignments %}
+            <div class="col-12 text-center py-5">
+                <div class="glass-panel p-5">
+                    <i class="bi bi-journals display-1 text-glass-muted mb-4"></i>
+                    <h3 class="text-white fw-bold">No Assignments Created</h3>
+                    <p class="text-glass-muted mb-4">Start by creating your first assignment for students.</p>
+                    <a href="{{ url_for('create_assignment') }}" class="btn btn-glass-primary px-5 rounded-pill">
+                        <i class="bi bi-plus-circle me-2"></i> Create Assignment
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+    </div>
+</div>
+
+<!-- Modal Definitions -->
+{% for a in assignments %}
+<!-- Edit Modal -->
+<div class="modal fade" id="editAssn{{ a.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-panel border-0">
+            <div class="modal-header border-bottom border-white border-opacity-10 bg-transparent">
+                <h5 class="modal-title text-white fw-bold">Update Assignment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('edit_assignment', assignment_id=a.id) }}" method="POST"
+                enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="mb-4 text-start">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Headline</label>
+                        <input type="text" name="title" class="form-control glass-input" value="{{ a.title }}" required>
+                    </div>
+                    <div class="mb-4 text-start">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Description</label>
+                        <textarea name="description" class="form-control glass-input"
+                            rows="4">{{ a.description }}</textarea>
+                    </div>
+                    <div class="mb-4 text-start">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Deadline</label>
+                        <input type="datetime-local" name="deadline" class="form-control glass-input"
+                            value="{{ a.deadline.strftime('%Y-%m-%dT%H:%M') }}" required>
+                    </div>
+                    <div class="mb-2 text-start">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Update Document
+                            (Optional)</label>
+                        <div class="drag-drop-zone py-4">
+                            <div class="drag-drop-content">
+                                <i class="bi bi-file-earmark-arrow-up text-primary fs-3 mb-2 d-inline-block"></i>
+                                <div class="small text-white opacity-75">Drop file here or click</div>
+                            </div>
+                            <input type="file" name="file" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-white border-opacity-10 bg-transparent">
+                    <button type="button" class="btn btn-glass btn-sm px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-glass-primary btn-sm px-4">Update Assignment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+</div>
+{% endblock %}

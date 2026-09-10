@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Subject Selection -->
+        <div class="col-lg-4 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4">
+                <div class="mb-4 text-center">
+                    <div class="badge bg-primary bg-opacity-20 text-primary mb-2 px-3 py-1 rounded-pill fw-bold">
+                        Academic Registry</div>
+                    <h4 class="fw-bold text-white mb-0">Select Class</h4>
+                </div>
+                <form method="GET" action="{{ url_for('mark_attendance') }}">
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Subject Cluster</label>
+                        <select name="subject_id" class="form-select glass-input shadow-none"
+                            onchange="this.form.submit()" required>
+                            <option value="" disabled {{ 'selected' if not selected_subject_id }}>Choose a Subject...
+                            </option>
+                            {% for subject in subjects %}
+                            <option value="{{ subject.id }}" class="bg-dark" {{ 'selected' if
+                                selected_subject_id==subject.id }}>
+                                {{ subject.name }} (Sem {{ subject.semester }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <noscript>
+                        <button type="submit" class="btn btn-glass w-100">Load Student List</button>
+                    </noscript>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bulk Roll Call -->
+        <div class="col-lg-8 animate-in" style="animation-delay: 0.2s">
+            {% if selected_subject_id %}
+            <div class="glass-panel glossy-shine p-4">
+                <form method="POST">
+                    <input type="hidden" name="subject_id" value="{{ selected_subject_id }}">
+                    <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                        <h4 class="fw-bold text-white mb-0">Daily Roll Call</h4>
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="date" name="date" class="form-control glass-input py-1 px-3 w-auto"
+                                value="{{ datetime.today().strftime('%Y-%m-%d') }}">
+                            <button type="submit" class="btn btn-glass-primary shadow-lg px-4 rounded-pill">
+                                Save Attendance <i class="bi bi-cloud-upload ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-glass align-middle">
+                            <thead>
+                                <tr class="text-uppercase small fw-bold text-glass-muted">
+                                    <th>Student Name</th>
+                                    <th>ID / Roll No</th>
+                                    <th class="text-center">Presence Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students_to_mark %}
+                                <tr class="animate-fade">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div
+                                                class="avatar-sm me-3 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold">
+                                                {{ student.username[0]|upper }}
+                                            </div>
+                                            <span class="text-white fw-bold">{{ student.student_profile.full_name
+                                                }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="small text-glass-muted">{{ student.student_profile.roll_no }}</td>
+                                    <td class="text-center">
+                                        <input type="hidden" name="student_ids" value="{{ student.id }}">
+                                        <div class="btn-group btn-group-sm w-100" role="group">
+                                            <input type="radio" class="btn-check" name="status_{{ student.id }}"
+                                                id="present_{{ student.id }}" value="Present" checked>
+                                            <label class="btn btn-outline-success border-0"
+                                                for="present_{{ student.id }}">P</label>
+
+                                            <input type="radio" class="btn-check" name="status_{{ student.id }}"
+                                                id="absent_{{ student.id }}" value="Absent">
+                                            <label class="btn btn-outline-danger border-0"
+                                                for="absent_{{ student.id }}">A</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-5 text-glass-muted">
+                                        No students found enrolled in this curriculum path.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+            {% else %}
+            <div class="glass-panel p-5 text-center d-flex flex-column align-items-center justify-content-center h-100">
+                <i class="bi bi-arrow-left-circle display-1 text-glass-muted mb-4"></i>
+                <h3 class="text-white fw-bold">Select a Subject</h3>
+                <p class="text-glass-muted max-w-400">Please choose a subject module from the registry on the left to
+                    initialize the roll call for today's session.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

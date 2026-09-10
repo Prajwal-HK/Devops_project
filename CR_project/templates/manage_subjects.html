@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Add Subject -->
+        <div class="col-lg-4 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4">
+                <div class="mb-4">
+                    <div class="badge bg-primary bg-opacity-20 text-primary mb-3 px-3 py-2 rounded-pill fw-bold">
+                        Knowledge Architecture</div>
+                    <h3 class="fw-bold text-white">Initialize Subject</h3>
+                    <p class="text-glass-muted">Add new modules to the academic program</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Subject Title</label>
+                        <input type="text" name="name" class="form-control glass-input"
+                            placeholder="e.g., Quantum Computing" required>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label class="form-label text-glass-muted small fw-bold text-uppercase">Academic Sem</label>
+                            <input type="number" name="semester" class="form-control glass-input" placeholder="1"
+                                required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-glass-muted small fw-bold text-uppercase">Parent Track</label>
+                            <select name="course_id" class="form-select glass-input shadow-none" required>
+                                {% for course in courses %}
+                                <option value="{{ course.id }}" class="bg-dark">{{ course.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Assigned Faculty</label>
+                        <div class="position-relative">
+                            <i
+                                class="bi bi-person-workspace position-absolute top-50 start-0 translate-middle-y ms-3 text-primary opacity-50"></i>
+                            <input type="text" name="faculty" class="form-control glass-input ps-5"
+                                placeholder="Dr. Alan Turing">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-glass-primary w-100 py-3 shadow-lg">
+                        Finalize Module <i class="bi bi-journal-plus ms-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Subject List -->
+        <div class="col-lg-8 animate-in" style="animation-delay: 0.2s">
+            <div class="glass-panel p-4 h-100">
+                <div class="mb-4 card-header-glass">
+                    <h3 class="fw-bold text-white">Active Modules</h3>
+                    <p class="text-glass-muted">Manage currently active academic subjects</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-glass align-middle">
+                        <thead>
+                            <tr class="text-uppercase small fw-bold text-glass-muted">
+                                <th>ID</th>
+                                <th>Subject Module</th>
+                                <th>Sem</th>
+                                <th>Academic Track</th>
+                                <th>Lead Faculty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for subject in subjects %}
+                            <tr class="animate-fade">
+                                <td class="fw-bold text-primary">#{{ subject.id }}</td>
+                                <td class="text-white">{{ subject.name }}</td>
+                                <td>
+                                    <span class="badge bg-white bg-opacity-10 text-white rounded-pill px-3">Sem {{
+                                        subject.semester }}</span>
+                                </td>
+                                <td class="small">{{ subject.course.name }}</td>
+                                <td class="text-white">
+                                    <i class="bi bi-person-circle me-1 opacity-50"></i>
+                                    {{ subject.faculty_name or 'Awaiting Assignment' }}
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button class="btn btn-glass btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#editSubject{{ subject.id }}">
+                                            <i class="bi bi-pencil-square text-primary"></i>
+                                        </button>
+                                        <form action="{{ url_for('delete_subject', subject_id=subject.id) }}"
+                                            method="POST" class="d-inline"
+                                            onsubmit="return confirm('Remove this module from the curriculum?');">
+                                            <button type="submit" class="btn btn-glass btn-sm">
+                                                <i class="bi bi-trash3 text-danger"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Edit Subject Modal -->
+                                    <div class="modal fade" id="editSubject{{ subject.id }}" tabindex="-1"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content glass-panel border-0">
+                                                <div
+                                                    class="modal-header border-bottom border-white border-opacity-10 bg-transparent">
+                                                    <h5 class="modal-title text-white fw-bold">Modify Academic Module
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white"
+                                                        data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form action="{{ url_for('edit_subject', subject_id=subject.id) }}"
+                                                    method="POST">
+                                                    <div class="modal-body p-4 text-start">
+                                                        <div class="mb-4">
+                                                            <label
+                                                                class="form-label text-glass-muted small fw-bold text-uppercase">Module
+                                                                Title</label>
+                                                            <input type="text" name="name"
+                                                                class="form-control glass-input"
+                                                                value="{{ subject.name }}" required>
+                                                        </div>
+                                                        <div class="row g-3 mb-4">
+                                                            <div class="col-6">
+                                                                <label
+                                                                    class="form-label text-glass-muted small fw-bold text-uppercase">Academic
+                                                                    Sem</label>
+                                                                <input type="number" name="semester"
+                                                                    class="form-control glass-input"
+                                                                    value="{{ subject.semester }}" required>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <label
+                                                                    class="form-label text-glass-muted small fw-bold text-uppercase">Parent
+                                                                    Track</label>
+                                                                <select name="course_id"
+                                                                    class="form-select glass-input shadow-none"
+                                                                    required>
+                                                                    {% for course in courses %}
+                                                                    <option value="{{ course.id }}" class="bg-dark"
+                                                                        {{ 'selected' if course.id==subject.course_id
+                                                                        }}>{{ course.name }}</option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label
+                                                                class="form-label text-glass-muted small fw-bold text-uppercase">Lead
+                                                                Faculty Assignment</label>
+                                                            <input type="text" name="faculty"
+                                                                class="form-control glass-input"
+                                                                value="{{ subject.faculty_name or '' }}"
+                                                                placeholder="Enter Faculty Name">
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="modal-footer border-top border-white border-opacity-10 bg-transparent">
+                                                        <button type="button" class="btn btn-glass btn-sm px-4"
+                                                            data-bs-dismiss="modal">Abandone</button>
+                                                        <button type="submit"
+                                                            class="btn btn-glass-primary btn-sm px-4">Update
+                                                            Module</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

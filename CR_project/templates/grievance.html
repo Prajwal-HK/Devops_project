@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5 animate-fade">
+    <div class="row g-4">
+        <!-- Submit Grievance Form -->
+        <div class="col-lg-5 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-5 h-100">
+                <div class="text-center mb-5">
+                    <div class="badge bg-danger bg-opacity-20 text-danger mb-3 px-4 py-2 rounded-pill fw-bold">Support
+                        Center</div>
+                    <h3 class="fw-bold text-white">File a Grievance</h3>
+                    <p class="text-glass-muted">Submit official complaints for swift resolution</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Subject</label>
+                        <input type="text" name="subject" class="form-control glass-input"
+                            placeholder="e.g., Attendance Discrepancy" required>
+                    </div>
+                    <div class="mb-5">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Description</label>
+                        <textarea name="description" class="form-control glass-input" rows="6"
+                            placeholder="Describe your issue in detail. Include dates, names, and any supporting context."
+                            required></textarea>
+                    </div>
+                    <button type="submit" class="btn w-100 py-3 fw-bold shadow-lg"
+                        style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3);">
+                        <i class="bi bi-exclamation-octagon-fill me-2"></i> Submit Complaint
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Grievance History -->
+        <div class="col-lg-7 animate-in" style="animation-delay: 0.2s">
+            <div class="glass-panel p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 card-header-glass">
+                    <div>
+                        <h5 class="fw-bold text-white mb-0">My Complaints</h5>
+                        <div class="text-glass-muted small">Track the resolution of your issues</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-warning bg-opacity-15 text-warning rounded-pill px-3">
+                            {{ grievances|selectattr('status', 'equalto', 'Pending')|list|length }} Pending
+                        </span>
+                        <span class="badge bg-success bg-opacity-15 text-success rounded-pill px-3">
+                            {{ grievances|selectattr('status', 'equalto', 'Resolved')|list|length }} Resolved
+                        </span>
+                    </div>
+                </div>
+
+                {% if grievances %}
+                <div class="accordion accordion-flush" id="grievanceAccordion">
+                    {% for gr in grievances %}
+                    <div class="mb-3 rounded-4 overflow-hidden border border-white border-opacity-5">
+                        <div class="p-4 bg-white bg-opacity-5" style="cursor: pointer;" data-bs-toggle="collapse"
+                            data-bs-target="#gr{{ gr.id }}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-white fw-bold small mb-1">{{ gr.subject }}</div>
+                                    <div class="text-glass-muted" style="font-size: 0.65rem;">{{
+                                        gr.created_at.strftime('%b %d, %Y') }} • ID: #{{ gr.id }}</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span
+                                        class="badge bg-{{ 'success' if gr.status == 'Resolved' else 'warning text-dark' }} bg-opacity-15 text-{{ 'success' if gr.status == 'Resolved' else 'warning' }} rounded-pill px-3 border border-{{ 'success' if gr.status == 'Resolved' else 'warning' }} border-opacity-15">
+                                        {{ gr.status }}
+                                    </span>
+                                    <i class="bi bi-chevron-down text-glass-muted small"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="gr{{ gr.id }}" class="collapse">
+                            <div class="p-4 border-top border-white border-opacity-5">
+                                <div class="mb-3">
+                                    <div class="text-glass-muted small fw-bold text-uppercase mb-1">Your Complaint</div>
+                                    <p class="text-white small mb-0">{{ gr.description }}</p>
+                                </div>
+                                <div
+                                    class="p-4 rounded-4 {{ 'bg-success bg-opacity-10 border border-success border-opacity-15' if gr.admin_response else 'bg-white bg-opacity-5 border border-white border-opacity-10' }}">
+                                    <div
+                                        class="text-{{ 'success' if gr.admin_response else 'glass-muted' }} small fw-bold text-uppercase mb-1">
+                                        {% if gr.admin_response %}<i class="bi bi-shield-check me-1"></i>{% endif %}
+                                        Admin Response
+                                    </div>
+                                    <p class="text-{{ 'white' if gr.admin_response else 'glass-muted' }} small mb-0">
+                                        {{ gr.admin_response if gr.admin_response else 'Your case is under
+                                        investigation. Please allow 2-3 business days.' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="text-glass-muted opacity-50 mb-3"><i class="bi bi-clipboard-check fs-1"></i></div>
+                    <p class="text-glass-muted">No grievances on record. Everything looks good!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

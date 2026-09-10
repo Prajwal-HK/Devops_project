@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 animate-in" style="animation-delay: 0.1s">
+            <div class="glass-panel glossy-shine p-4 p-md-5">
+                <div class="mb-4 text-center">
+                    <div class="badge bg-secondary bg-opacity-20 text-secondary mb-3 px-3 py-2 rounded-pill fw-bold">
+                        Performance Analytics</div>
+                    <h3 class="fw-bold text-white">Upload Assessment Marks</h3>
+                    <p class="text-glass-muted">Sync academic performance data to student profiles</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Search Student</label>
+                        <select name="student_id" class="form-select glass-input shadow-none" required>
+                            {% for student in students %}
+                            <option value="{{ student.id }}" class="bg-dark">{{ student.username }} ({{ student.email
+                                }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-glass-muted small fw-bold text-uppercase">Academic Subject</label>
+                        <select name="subject_id" class="form-select glass-input shadow-none" required>
+                            {% for subject in subjects %}
+                            <option value="{{ subject.id }}" class="bg-dark">{{ subject.name }} (Sem: {{
+                                subject.semester }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label class="form-label text-glass-muted small fw-bold text-uppercase">Internal
+                                (40)</label>
+                            <input type="number" name="internal" class="form-control glass-input" placeholder="0"
+                                required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-glass-muted small fw-bold text-uppercase">Semester
+                                (60)</label>
+                            <input type="number" name="semester" class="form-control glass-input" placeholder="0"
+                                required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-glass-primary w-100 py-3 shadow-lg">
+                        Finalize Grading <i class="bi bi-graph-up-arrow ms-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

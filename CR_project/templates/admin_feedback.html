@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container py-5 animate-fade">
+
+    <!-- Stats Row - Admin Only -->
+    {% if current_user.role == 'admin' %}
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="glass-panel glossy-shine p-4 text-center">
+                <div class="h2 fw-bold text-white">{{ total }}</div>
+                <div class="text-glass-muted small">Total Submissions</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-panel glossy-shine p-4 text-center">
+                <div class="h2 fw-bold text-warning">{{ avg_rating }}</div>
+                <div class="text-glass-muted small">Average Rating</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-panel p-4">
+                <div class="text-glass-muted small fw-bold text-uppercase mb-3">Rating Distribution</div>
+                {% for star, count in rating_dist.items() %}
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="text-glass-muted small" style="width: 20px;">{{ star }}⭐</div>
+                    <div class="progress flex-grow-1 rounded-pill"
+                        style="height: 6px; background: rgba(255,255,255,0.05);">
+                        {% set pct = (count / total * 100)|round if total else 0 %}
+                        <div class="progress-bar bg-warning" style="--w: {{ pct }}%; width: var(--w);"></div>
+                    </div>
+                    <div class="text-glass-muted small" style="width: 20px;">{{ count }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Table (Admin) -->
+    <div class="glass-panel p-0 overflow-hidden">
+        <div class="p-4 border-bottom border-white border-opacity-5">
+            <h5 class="fw-bold text-white mb-0"><i class="bi bi-chat-square-heart-fill text-primary me-2"></i> All
+                Student Feedback</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-glass align-middle mb-0">
+                <thead class="bg-white bg-opacity-5">
+                    <tr>
+                        <th class="ps-4 py-3 text-glass-muted small text-uppercase">Student</th>
+                        <th class="py-3 text-glass-muted small text-uppercase">Feedback</th>
+                        <th class="pe-4 py-3 text-glass-muted small text-uppercase text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fb in feedbacks %}
+                    <tr class="animate-slide-up"
+                        style="--delay: {{ loop.index * 0.03 }}s; animation-delay: var(--delay);">
+                        <td class="ps-4">
+                            <div class="text-white fw-bold small">{{ fb.student.student_profile.full_name if
+                                fb.student.student_profile else fb.student.username }}</div>
+                            <div class="text-glass-muted" style="font-size: 0.65rem;">{{ fb.student.username }}</div>
+                        </td>
+                        <td>
+                            <div class="text-glass-muted small" style="max-width: 400px;">{{ fb.content }}</div>
+                        </td>
+                        <td>
+                            {% for i in range(fb.rating if fb.rating else 0) %}⭐{% endfor %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <form action="{{ url_for('delete_feedback', fb_id=fb.id) }}" method="POST"
+                                onsubmit="return confirm('Remove this feedback?')">
+                                <button type="submit" class="btn btn-sm btn-glass text-danger border-0">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-glass-muted">No feedback received yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
