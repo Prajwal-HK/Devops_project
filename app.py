@@ -35,11 +35,11 @@ if not hasattr(app, 'json_encoder'):
     except ImportError:
         app.json_encoder = None
 
-app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', '5791628bb0b13ce0c676dfde280ba245')
 app.config['MONGODB_SETTINGS'] = {
-    'db': 'crms_db',
-    'host': 'localhost',
-    'port': 27017
+    'db': os.getenv('MONGO_DB', 'crms_db'),
+    'host': os.getenv('MONGO_HOST', 'localhost'),
+    'port': int(os.getenv('MONGO_PORT', '27017'))
 }
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'images', 'profiles')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max-limit
@@ -1439,4 +1439,4 @@ if __name__ == '__main__':
         if not User.objects(role='admin').first():
             admin = User(id=1, username='admin', email='admin@crms.com', password=bcrypt.generate_password_hash('admin123').decode('utf-8'), role='admin')
             admin.save()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', '5000')), debug=os.getenv('FLASK_DEBUG', 'false').lower() == 'true')

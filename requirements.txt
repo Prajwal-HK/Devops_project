@@ -10,3 +10,4 @@ reportlab
 pandas
 matplotlib
 plotly
+gunicorn

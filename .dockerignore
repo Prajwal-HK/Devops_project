@@ -1,0 +1,10 @@
+.git
+.gitignore
+.github
+.vscode
+__pycache__
+*.py[cod]
+*.bak
+.env
+.env.*
+instance

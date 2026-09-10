@@ -35,6 +35,18 @@ A full-stack project built with Flask (Python), HTML, CSS, and JavaScript.
 4.  **Access the application**:
     Open `http://127.0.0.1:5000` in your browser.
 
+## Run with Docker
+
+Docker Compose starts the Flask application and MongoDB together:
+
+```bash
+docker compose up --build
+```
+
+Open `http://localhost:5000`. Stop the services with `docker compose down`.
+
+The `Build and test Docker image` workflow runs automatically for pushes and pull requests targeting `main` or `master`. It is also available under the **Actions** tab for manual runs.
+
 ## Default Credentials
 - **Admin**: `admin@crms.com` / `admin123`
 - **Student**: You can register a new student account from the register page.

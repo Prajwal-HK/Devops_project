@@ -1,0 +1,38 @@
+name: Build and test Docker image
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  docker:
+    name: Build and smoke test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build and start services
+        run: docker compose up -d --build
+
+      - name: Wait for application
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:5000/ > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+
+      - name: Verify application response
+        run: curl --fail --silent --show-error http://localhost:5000/
+
+      - name: Stop services
+        if: always()
+        run: docker compose down -v
